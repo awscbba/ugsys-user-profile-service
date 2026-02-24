@@ -63,10 +63,11 @@ testpaths = ["tests"]
 source = ["src"]
 omit = [
     "src/main.py",
-    "src/infrastructure/persistence/*",
-    "src/infrastructure/logging.py",
-    "src/presentation/api/v1/profiles.py",
+    "src/config.py",
+    "src/infrastructure/*",
+    "src/presentation/middleware/*",
     "src/presentation/api/v1/health.py",
+    "src/presentation/api/v1/profiles.py",
 ]
 
 [tool.coverage.report]

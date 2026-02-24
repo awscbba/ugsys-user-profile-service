@@ -1,5 +1,6 @@
 """Profiles router — /api/v1/profiles endpoints."""
 
+from typing import Any
 from uuid import UUID
 
 import structlog
@@ -45,9 +46,10 @@ def get_token_service() -> object:  # pragma: no cover
 def _extract_claims(
     credentials: HTTPAuthorizationCredentials,
     token_service: object,
-) -> dict:  # type: ignore[type-arg]
+) -> dict[str, Any]:
     try:
-        return token_service.verify_token(credentials.credentials)  # type: ignore[attr-defined]
+        result: dict[str, Any] = token_service.verify_token(credentials.credentials)  # type: ignore[attr-defined]
+        return result
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -56,7 +58,7 @@ def _extract_claims(
         ) from e
 
 
-def _profile_dict(p: UserProfile) -> dict:  # type: ignore[type-arg]
+def _profile_dict(p: UserProfile) -> dict[str, Any]:
     return {
         "user_id": str(p.user_id),
         "email": p.email,
@@ -79,7 +81,7 @@ async def get_my_profile(
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
     profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
-) -> dict:  # type: ignore[type-arg]
+) -> dict[str, Any]:
     claims = _extract_claims(credentials, token_service)
     user_id = UUID(str(claims["sub"]))
     try:
@@ -97,7 +99,7 @@ async def get_profile(
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
     profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
-) -> dict:  # type: ignore[type-arg]
+) -> dict[str, Any]:
     claims = _extract_claims(credentials, token_service)
     requester_id = str(claims["sub"])
     roles: list[str] = list(claims.get("roles", []))
@@ -120,7 +122,7 @@ async def update_contact(
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
     profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
-) -> dict:  # type: ignore[type-arg]
+) -> dict[str, Any]:
     claims = _extract_claims(credentials, token_service)
     requester_id = str(claims["sub"])
     try:
@@ -150,7 +152,7 @@ async def update_personal(
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
     profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
-) -> dict:  # type: ignore[type-arg]
+) -> dict[str, Any]:
     claims = _extract_claims(credentials, token_service)
     requester_id = str(claims["sub"])
     try:
