@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo ""
+echo "🔍 Running pre-commit checks..."
+echo ""
+
+echo "── Ruff lint ──"
+if uv run ruff check src/ tests/; then
+  echo "  ✓ ruff lint"
+else
+  echo "  ✗ ruff lint failed"
+  exit 1
+fi
+
+echo "── Ruff format ──"
+if uv run ruff format --check src/ tests/; then
+  echo "  ✓ ruff format"
+else
+  echo "  ✗ ruff format failed — run: just format"
+  exit 1
+fi
+
+echo ""
+echo "✓ All pre-commit checks passed."
+echo ""
