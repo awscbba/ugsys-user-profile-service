@@ -18,3 +18,8 @@ class ProfileRepository(ABC):
 
     @abstractmethod
     async def delete(self, user_id: UUID) -> None: ...
+
+    @abstractmethod
+    async def list_profiles(self, page: int, page_size: int) -> tuple[list[UserProfile], int]:
+        """Return (profiles_page, total_count). Excludes soft-deleted profiles."""
+        ...

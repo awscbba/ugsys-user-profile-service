@@ -4,6 +4,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from uuid import UUID
 
+from src.domain.value_objects.notification_preferences import NotificationPreferences
+
 
 @dataclass
 class Address:
@@ -34,6 +36,19 @@ class UserProfile:
     require_password_change: bool = False
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+
+    # Preferences and display
+    notification_preferences: NotificationPreferences = field(
+        default_factory=NotificationPreferences,
+    )
+    language: str = "es"  # ISO 639-1
+    timezone: str = "America/La_Paz"  # IANA timezone
+    avatar_url: str | None = None
+    bio: str | None = None  # max 500 chars
+    display_name: str | None = None
+
+    # Soft-delete marker
+    deleted_at: datetime | None = None
 
     # Audit — set during migration from Registry
     migrated_from: str | None = None
@@ -67,4 +82,36 @@ class UserProfile:
 
     def clear_password_change_flag(self) -> None:
         self.require_password_change = False
+        self.updated_at = datetime.now(UTC)
+
+    def update_preferences(
+        self,
+        notification_preferences: NotificationPreferences | None = None,
+        language: str | None = None,
+        timezone: str | None = None,
+    ) -> None:
+        """Update only the provided preference fields. Sets updated_at."""
+        if notification_preferences is not None:
+            self.notification_preferences = notification_preferences
+        if language is not None:
+            self.language = language
+        if timezone is not None:
+            self.timezone = timezone
+        self.updated_at = datetime.now(UTC)
+
+    def update_display(
+        self,
+        bio: str | None = None,
+        display_name: str | None = None,
+    ) -> None:
+        """Update display fields. Truncates bio to 500 chars. Sets updated_at."""
+        if bio is not None:
+            self.bio = bio[:500]  # defensive truncation
+        if display_name is not None:
+            self.display_name = display_name
+        self.updated_at = datetime.now(UTC)
+
+    def soft_delete(self) -> None:
+        """Set deleted_at to current UTC timestamp. Sets updated_at."""
+        self.deleted_at = datetime.now(UTC)
         self.updated_at = datetime.now(UTC)

@@ -1,6 +1,6 @@
 """Unit tests for ProfileService application service."""
 
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
@@ -14,6 +14,7 @@ from src.application.commands.profile_commands import (
 from src.application.queries.profile_queries import GetProfileQuery
 from src.application.services.profile_service import ProfileService
 from src.domain.entities.profile import UserProfile
+from src.domain.exceptions import AuthorizationError, ConflictError, NotFoundError
 
 
 def make_profile(user_id=None, **kwargs) -> UserProfile:
@@ -28,7 +29,7 @@ def make_profile(user_id=None, **kwargs) -> UserProfile:
 
 def make_service(profile=None):
     repo = AsyncMock()
-    publisher = MagicMock()
+    publisher = AsyncMock()
     if profile:
         repo.find_by_user_id.return_value = profile
         repo.save.return_value = profile
@@ -65,14 +66,16 @@ async def test_get_profile_idor_blocked():
     other_id = str(uuid4())
     profile = make_profile(user_id=uid)
     svc, _, _ = make_service(profile)
-    with pytest.raises(PermissionError):
+    with pytest.raises(AuthorizationError) as exc_info:
         await svc.get_profile(GetProfileQuery(user_id=uid, requester_id=other_id, is_admin=False))
+    assert "Access denied" in exc_info.value.user_message
 
 
 async def test_get_profile_not_found():
     svc, _, _ = make_service()
-    with pytest.raises(ValueError, match="not found"):
+    with pytest.raises(NotFoundError) as exc_info:
         await svc.get_profile(GetProfileQuery(user_id=uuid4(), requester_id="x"))
+    assert "not found" in exc_info.value.user_message.lower()
 
 
 # ── create_profile ────────────────────────────────────────────────────────────
@@ -82,7 +85,7 @@ async def test_create_profile_success():
     uid = uuid4()
     repo = AsyncMock()
     repo.find_by_user_id.return_value = None
-    publisher = MagicMock()
+    publisher = AsyncMock()
     svc = ProfileService(profile_repo=repo, event_publisher=publisher)
     repo.save.side_effect = lambda p: p
 
@@ -103,8 +106,9 @@ async def test_create_profile_duplicate_raises():
     uid = uuid4()
     profile = make_profile(user_id=uid)
     svc, _, _ = make_service(profile)
-    with pytest.raises(ValueError, match="already exists"):
+    with pytest.raises(ConflictError) as exc_info:
         await svc.create_profile(CreateProfileCommand(user_id=uid, email="[email]", full_name="X"))
+    assert "already exists" in exc_info.value.user_message.lower()
 
 
 # ── update_contact ────────────────────────────────────────────────────────────
@@ -130,7 +134,7 @@ async def test_update_contact_idor_blocked():
     uid = uuid4()
     profile = make_profile(user_id=uid)
     svc, _, _ = make_service(profile)
-    with pytest.raises(PermissionError):
+    with pytest.raises(AuthorizationError) as exc_info:
         await svc.update_contact(
             UpdateContactCommand(
                 user_id=uid,
@@ -138,6 +142,7 @@ async def test_update_contact_idor_blocked():
                 phone="+591 70000001",
             )
         )
+    assert "Access denied" in exc_info.value.user_message
 
 
 # ── update_personal ───────────────────────────────────────────────────────────
@@ -165,7 +170,7 @@ async def test_update_personal_success():
 async def test_delete_profile_publishes_event():
     uid = uuid4()
     repo = AsyncMock()
-    publisher = MagicMock()
+    publisher = AsyncMock()
     svc = ProfileService(profile_repo=repo, event_publisher=publisher)
 
     await svc.delete_profile(DeleteProfileCommand(user_id=uid))
