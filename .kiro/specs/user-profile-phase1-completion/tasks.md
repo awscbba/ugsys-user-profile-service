@@ -42,7 +42,7 @@ Close all remaining P0/P1/P2 gaps in `ugsys-user-profile-service` following test
     - `soft_delete()`: sets `deleted_at` to current UTC timestamp; sets `updated_at`
     - _Requirements: 1.3, 1.4, 1.5, 1.6_
 
-  - [ ]* 2.3 Write unit tests for UserProfile entity extensions in `tests/unit/domain/test_profile_entity.py`
+  - [x]* 2.3 Write unit tests for UserProfile entity extensions in `tests/unit/domain/test_profile_entity.py`
     - Test all new field defaults on fresh UserProfile creation
     - Test `update_preferences()` updates only provided fields
     - Test `update_display()` updates only provided fields
@@ -348,7 +348,7 @@ Close all remaining P0/P1/P2 gaps in `ugsys-user-profile-service` following test
     - Test docs enabled when `environment="dev"`
     - _Requirements: 14.1, 14.3, 14.5_
 
-- [-] 15. Final checkpoint — Full integration verification
+- [x] 15. Final checkpoint — Full integration verification
   - Ensure all tests pass, ask the user if questions arise.
   - Verify all 14 requirements are covered by implementation
   - Verify domain exceptions are used everywhere (no raw ValueError/PermissionError from app/domain)
