@@ -1,8 +1,10 @@
 """Unit tests for UserProfile domain entity."""
 
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from src.domain.entities.profile import Address, UserProfile
+from src.domain.value_objects.notification_preferences import NotificationPreferences
 
 
 def make_profile(**kwargs) -> UserProfile:
@@ -65,3 +67,73 @@ def test_update_contact_partial_does_not_clear_phone():
     p.update_contact(address=addr)
     # phone unchanged when not passed
     assert p.phone == "+591 70000000"
+
+
+# ── New field and method tests ────────────────────────────────────────────────
+
+
+def test_new_field_defaults():
+    p = make_profile()
+    assert p.language == "es"
+    assert p.timezone == "America/La_Paz"
+    assert p.avatar_url is None
+    assert p.bio is None
+    assert p.display_name is None
+    assert p.deleted_at is None
+    assert p.notification_preferences.email is True
+    assert p.notification_preferences.sms is False
+    assert p.notification_preferences.whatsapp is False
+
+
+def test_update_preferences_language_only():
+    p = make_profile()
+    p.update_preferences(language="en")
+    assert p.language == "en"
+    assert p.timezone == "America/La_Paz"  # unchanged
+
+
+def test_update_preferences_timezone_only():
+    p = make_profile()
+    p.update_preferences(timezone="America/New_York")
+    assert p.timezone == "America/New_York"
+    assert p.language == "es"  # unchanged
+
+
+def test_update_preferences_notification():
+    p = make_profile()
+    prefs = NotificationPreferences(email=False, sms=True, whatsapp=False)
+    p.update_preferences(notification_preferences=prefs)
+    assert p.notification_preferences.email is False
+    assert p.notification_preferences.sms is True
+
+
+def test_update_display_bio_and_name():
+    p = make_profile()
+    p.update_display(bio="Hello world", display_name="Dev")
+    assert p.bio == "Hello world"
+    assert p.display_name == "Dev"
+
+
+def test_update_display_bio_truncated():
+    p = make_profile()
+    long_bio = "x" * 600
+    p.update_display(bio=long_bio)
+    assert len(p.bio) == 500
+
+
+def test_update_display_partial_does_not_clear():
+    p = make_profile()
+    p.update_display(bio="Initial bio")
+    p.update_display(display_name="Dev")
+    assert p.bio == "Initial bio"  # unchanged
+    assert p.display_name == "Dev"
+
+
+def test_soft_delete_sets_deleted_at():
+    p = make_profile()
+    assert p.deleted_at is None
+    before = datetime.now(UTC)
+    p.soft_delete()
+    assert p.deleted_at is not None
+    assert p.deleted_at >= before
+    assert p.updated_at >= before
