@@ -201,11 +201,14 @@ async def update_contact(
 ) -> dict[str, Any]:
     claims = _extract_claims(credentials, token_service)
     requester_id = str(claims["sub"])
+    roles: list[str] = list(claims.get("roles", []))
+    is_admin = "admin" in roles or "super_admin" in roles
     request_id = correlation_id_var.get("")
     profile = await profile_service.update_contact(
         UpdateContactCommand(
             user_id=user_id,
             requester_id=requester_id,
+            is_admin=is_admin,
             phone=body.phone,
             street=body.street,
             city=body.city,

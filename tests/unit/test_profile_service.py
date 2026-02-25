@@ -124,7 +124,26 @@ async def test_update_contact_success():
         UpdateContactCommand(
             user_id=uid,
             requester_id=str(uid),
+            is_admin=False,
             phone="+591 70000001",
+        )
+    )
+    publisher.publish.assert_called_once()
+
+
+async def test_update_contact_admin_can_update_any():
+    uid = uuid4()
+    admin_id = str(uuid4())
+    profile = make_profile(user_id=uid)
+    svc, repo, publisher = make_service(profile)
+    repo.update.return_value = profile
+
+    await svc.update_contact(
+        UpdateContactCommand(
+            user_id=uid,
+            requester_id=admin_id,
+            is_admin=True,
+            phone="+591 70000002",
         )
     )
     publisher.publish.assert_called_once()
@@ -139,6 +158,7 @@ async def test_update_contact_idor_blocked():
             UpdateContactCommand(
                 user_id=uid,
                 requester_id=str(uuid4()),
+                is_admin=False,
                 phone="+591 70000001",
             )
         )
