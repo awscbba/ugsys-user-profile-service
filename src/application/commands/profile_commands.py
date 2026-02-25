@@ -43,3 +43,46 @@ class UpdatePersonalCommand:
 @dataclass(frozen=True)
 class DeleteProfileCommand:
     user_id: UUID
+
+
+@dataclass(frozen=True)
+class UploadAvatarCommand:
+    user_id: UUID
+    requester_id: str
+    is_admin: bool
+    file_bytes: bytes
+    content_type: str  # e.g. "image/jpeg", "image/png", "image/webp"
+
+
+@dataclass(frozen=True)
+class DeleteAvatarCommand:
+    user_id: UUID
+    requester_id: str
+    is_admin: bool
+
+
+@dataclass(frozen=True)
+class UpdatePreferencesCommand:
+    user_id: UUID
+    requester_id: str
+    is_admin: bool
+    notification_preferences_email: bool | None = None
+    notification_preferences_sms: bool | None = None
+    notification_preferences_whatsapp: bool | None = None
+    language: str | None = None
+    timezone: str | None = None
+
+
+@dataclass(frozen=True)
+class UpdateDisplayCommand:
+    user_id: UUID
+    requester_id: str
+    is_admin: bool
+    bio: str | None = None
+    display_name: str | None = None
+
+
+@dataclass(frozen=True)
+class SoftDeleteProfileCommand:
+    user_id: UUID
+    requester_id: str  # must be admin
