@@ -323,9 +323,7 @@ async def test_update_display_not_found():
     svc, _, _ = make_service(profile=None)
     with pytest.raises(NotFoundError):
         await svc.update_display(
-            UpdateDisplayCommand(
-                user_id=uuid4(), requester_id="x", is_admin=False, bio="Hello"
-            )
+            UpdateDisplayCommand(user_id=uuid4(), requester_id="x", is_admin=False, bio="Hello")
         )
 
 
@@ -376,9 +374,7 @@ async def test_soft_delete_success():
     profile = make_profile(user_id=uid)
     svc, repo, publisher = make_service(profile)
 
-    await svc.soft_delete_profile(
-        SoftDeleteProfileCommand(user_id=uid, requester_id="admin")
-    )
+    await svc.soft_delete_profile(SoftDeleteProfileCommand(user_id=uid, requester_id="admin"))
     repo.update.assert_called_once()
     publisher.publish.assert_called_once()
     assert profile.deleted_at is not None
