@@ -118,7 +118,7 @@ class ProfileService:
                 message=f"Profile not found: {command.user_id}",
                 user_message="Profile not found",
             )
-        if not getattr(command, "is_admin", False) and str(profile.user_id) != command.requester_id:
+        if not command.is_admin and str(profile.user_id) != command.requester_id:
             raise AuthorizationError(
                 message=f"User {command.requester_id} attempted IDOR on {command.user_id}",
                 user_message="Access denied",
@@ -426,3 +426,35 @@ class ProfileService:
     async def get_profile_by_id(self, user_id: UUID) -> UserProfile | None:
         """Internal use — S2S calls from other services."""
         return await self._repo.find_by_user_id(user_id)
+
+    async def deactivate_profile(self, user_id: UUID) -> None:
+        """Internal use — soft-delete a profile in response to a user deactivation event."""
+        start = time.perf_counter()
+        logger.info("profile_service.deactivate.started", user_id=str(user_id))
+        profile = await self._repo.find_by_user_id(user_id)
+        if not profile:
+            logger.warning("profile_service.deactivate.not_found", user_id=str(user_id))
+            return
+        profile.soft_delete()
+        await self._repo.update(profile)
+        logger.info(
+            "profile_service.deactivate.completed",
+            user_id=str(user_id),
+            duration_ms=round((time.perf_counter() - start) * 1000, 2),
+        )
+
+    async def clear_password_change_flag(self, user_id: UUID) -> None:
+        """Internal use — clear require_password_change flag after a password change event."""
+        start = time.perf_counter()
+        logger.info("profile_service.clear_password_flag.started", user_id=str(user_id))
+        profile = await self._repo.find_by_user_id(user_id)
+        if not profile:
+            logger.warning("profile_service.clear_password_flag.not_found", user_id=str(user_id))
+            return
+        profile.clear_password_change_flag()
+        await self._repo.update(profile)
+        logger.info(
+            "profile_service.clear_password_flag.completed",
+            user_id=str(user_id),
+            duration_ms=round((time.perf_counter() - start) * 1000, 2),
+        )

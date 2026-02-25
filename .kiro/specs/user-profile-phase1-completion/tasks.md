@@ -355,6 +355,70 @@ Close all remaining P0/P1/P2 gaps in `ugsys-user-profile-service` following test
   - Verify all API responses use envelope format
   - Verify event bus name is `ugsys-platform-bus`
 
+- [x] 16. Fix UpdateContactCommand is_admin inconsistency
+  - [x] 16.1 Add `is_admin: bool = False` to `UpdateContactCommand` dataclass in `src/application/commands/profile_commands.py`
+    - All other commands have an explicit `is_admin` field — this one is missing it
+    - _Requirements: 2.2, 2.4_
+
+  - [x] 16.2 Update `ProfileService.update_contact()` to use `command.is_admin` directly
+    - Remove the `getattr(command, "is_admin", False)` fallback — it masks the missing field
+    - _Requirements: 2.2, 2.4_
+
+  - [x] 16.3 Update `profiles.py` router to pass `is_admin` when building `UpdateContactCommand`
+    - Extract `is_admin` from the JWT claims (same pattern as other endpoints)
+    - _Requirements: 2.2, 2.4_
+
+  - [x] 16.4 Update existing unit tests for `update_contact` to pass `is_admin` explicitly
+    - Ensures tests reflect the corrected command shape
+    - _Requirements: 2.2, 2.4_
+
+- [x] 17. Fix event consumer private attribute access
+  - [x] 17.1 Verify `get_profile_by_id` public method exists on `ProfileService`
+    - If missing, add it; it is needed to avoid accessing `service._repo` directly
+    - _Requirements: 4.2, 5.1, 6.1_
+
+  - [x] 17.2 Refactor `_handle_user_deactivated` in `event_consumer.py` to avoid `service._repo` access
+    - Use `service.get_profile_by_id()` + `service.soft_delete_profile()` (via `SoftDeleteProfileCommand`), or pass the repository as a separate parameter
+    - _Requirements: 5.1, 5.2_
+
+  - [x] 17.3 Refactor `_handle_password_changed` in `event_consumer.py` similarly
+    - Remove direct `service._repo` access; use public service methods or a direct repo parameter
+    - _Requirements: 6.1, 6.2_
+
+  - [x] 17.4 Write unit tests for event consumer in `tests/unit/test_event_consumer.py`
+    - Test `_handle_user_deactivated` calls the correct public method (not `_repo`)
+    - Test `_handle_password_changed` calls the correct public method (not `_repo`)
+    - _Requirements: 5.1, 5.2, 6.1, 6.2_
+
+- [x] 18. Add integration tests for DynamoDB repository
+  - [x] 18.1 Create `tests/integration/conftest.py` with moto fixtures
+    - Set up mock DynamoDB table matching the production table schema (GSIs, attribute definitions)
+    - _Requirements: 13.1, 13.2, 13.3_
+
+  - [x] 18.2 Create `tests/integration/test_dynamodb_repository.py`
+    - Test round-trip save/find for `UserProfile` with all new fields (`notification_preferences`, `language`, `timezone`, `avatar_url`, `bio`, `display_name`, `deleted_at`)
+    - Test backward compatibility: items missing new fields deserialize with correct defaults
+    - Test `list_profiles` returns correct page and excludes soft-deleted profiles
+    - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
+
+  - [x] 18.3 Verify `moto[dynamodb]` is present in dev dependencies in `pyproject.toml`
+    - Add `moto[s3]` if S3 integration tests are also needed (check existing deps first)
+    - _Requirements: 13.1_
+
+- [x] 19. Fix coverage configuration to include router and middleware
+  - [x] 19.1 Update `[tool.coverage.run]` omit list in `pyproject.toml`
+    - Only exclude `src/main.py` and `src/config.py`; remove overly broad patterns that exclude the router and middleware from measurement
+    - _Requirements: 14.1, 14.2_
+
+  - [x] 19.2 Relocate misplaced presentation unit tests
+    - Move `tests/unit/test_response_envelope.py` → `tests/unit/presentation/test_response_envelope.py`
+    - Move `tests/unit/test_domain_exceptions.py` → `tests/unit/domain/test_domain_exceptions.py` (if it exists at root)
+    - _Requirements: 2.5, 11.1_
+
+  - [x] 19.3 Verify coverage still passes the 80% gate after expanding measurement scope
+    - Run `uv run pytest tests/unit/ --cov=src --cov-fail-under=80` and confirm it passes
+    - _Requirements: 14.1_
+
 ## Notes
 
 - Tasks marked with `*` are optional and can be skipped for faster MVP
@@ -366,3 +430,4 @@ Close all remaining P0/P1/P2 gaps in `ugsys-user-profile-service` following test
 - Application layer tasks (5–7) depend only on mockable domain ports
 - Infrastructure tasks (9–10) require moto for integration tests
 - Presentation tasks (12–13) use FastAPI TestClient with mocked services
+- Tasks 16–19 are post-completion gap fixes discovered after the initial implementation: command field consistency (16), encapsulation violation in event consumer (17), missing integration test coverage (18), and coverage configuration accuracy (19)

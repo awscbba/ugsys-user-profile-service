@@ -49,13 +49,8 @@ async def _handle_user_deactivated(event_detail: dict[str, Any], service: Profil
         return
 
     try:
-        profile = await service._repo.find_by_user_id(UUID(str(user_id)))
-        if not profile:
-            logger.warning("event_consumer.user_deactivated.not_found", user_id=str(user_id))
-            return
-        profile.soft_delete()
-        await service._repo.update(profile)
-        logger.info("event_consumer.user_deactivated.soft_deleted", user_id=str(user_id))
+        await service.deactivate_profile(UUID(str(user_id)))
+        logger.info("event_consumer.user_deactivated.handled", user_id=str(user_id))
     except Exception as e:
         logger.error("event_consumer.user_deactivated.failed", user_id=str(user_id), error=str(e))
 
@@ -68,13 +63,8 @@ async def _handle_password_changed(event_detail: dict[str, Any], service: Profil
         return
 
     try:
-        profile = await service._repo.find_by_user_id(UUID(str(user_id)))
-        if not profile:
-            logger.warning("event_consumer.password_changed.not_found", user_id=str(user_id))
-            return
-        profile.clear_password_change_flag()
-        await service._repo.update(profile)
-        logger.info("event_consumer.password_changed.flag_cleared", user_id=str(user_id))
+        await service.clear_password_change_flag(UUID(str(user_id)))
+        logger.info("event_consumer.password_changed.handled", user_id=str(user_id))
     except Exception as e:
         logger.error("event_consumer.password_changed.failed", user_id=str(user_id), error=str(e))
 

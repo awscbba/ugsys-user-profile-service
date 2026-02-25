@@ -64,10 +64,15 @@ source = ["src"]
 omit = [
     "src/main.py",
     "src/config.py",
-    "src/infrastructure/*",
-    "src/presentation/middleware/*",
+    "src/infrastructure/persistence/*",
+    "src/infrastructure/adapters/*",
+    "src/infrastructure/messaging/event_publisher.py",
+    "src/infrastructure/logging.py",
     "src/presentation/api/v1/health.py",
     "src/presentation/api/v1/profiles.py",
+    "src/presentation/middleware/correlation_id.py",
+    "src/presentation/middleware/rate_limiting.py",
+    "src/presentation/middleware/security_headers.py",
 ]
 
 [tool.coverage.report]

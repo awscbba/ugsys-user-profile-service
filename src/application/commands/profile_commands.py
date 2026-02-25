@@ -24,6 +24,7 @@ class CreateProfileCommand:
 class UpdateContactCommand:
     user_id: UUID
     requester_id: str  # must match user_id (self-update only)
+    is_admin: bool = False
     phone: str | None = None
     street: str | None = None
     city: str | None = None
