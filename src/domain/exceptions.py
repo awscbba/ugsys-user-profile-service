@@ -66,6 +66,13 @@ class AuthorizationError(DomainError):
     error_code: str = "FORBIDDEN"
 
 
+@dataclass
+class AccountLockedError(DomainError):
+    """Account is locked. HTTP 423."""
+
+    error_code: str = "ACCOUNT_LOCKED"
+
+
 # ── Infrastructure ────────────────────────────────────────────────────────────
 
 

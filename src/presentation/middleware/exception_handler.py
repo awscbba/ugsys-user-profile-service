@@ -9,6 +9,7 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 from src.domain.exceptions import (
+    AccountLockedError,
     AuthenticationError,
     AuthorizationError,
     ConflictError,
@@ -18,6 +19,7 @@ from src.domain.exceptions import (
     RepositoryError,
     ValidationError,
 )
+from src.presentation.middleware.correlation_id import correlation_id_var
 
 logger = structlog.get_logger()
 
@@ -27,6 +29,7 @@ _STATUS_MAP: dict[type[DomainError], int] = {
     ConflictError: 409,
     AuthorizationError: 403,
     AuthenticationError: 401,
+    AccountLockedError: 423,
     RepositoryError: 500,
     ExternalServiceError: 502,
 }
@@ -35,6 +38,7 @@ _STATUS_MAP: dict[type[DomainError], int] = {
 async def domain_exception_handler(request: Request, exc: DomainError) -> JSONResponse:
     """Handle known domain exceptions and return structured error responses."""
     status = _STATUS_MAP.get(type(exc), 500)
+    request_id = correlation_id_var.get("")
     logger.error(
         "domain_error",
         error_code=exc.error_code,
@@ -50,7 +54,7 @@ async def domain_exception_handler(request: Request, exc: DomainError) -> JSONRe
                 "message": exc.user_message,
             },
             "meta": {
-                "request_id": request.headers.get("X-Request-ID", ""),
+                "request_id": request_id,
             },
         },
     )
@@ -58,6 +62,7 @@ async def domain_exception_handler(request: Request, exc: DomainError) -> JSONRe
 
 async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Handle unexpected exceptions and return a generic 500 response."""
+    request_id = correlation_id_var.get("")
     logger.error(
         "unhandled_exception",
         error=str(exc),
@@ -72,7 +77,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONR
                 "message": "An unexpected error occurred",
             },
             "meta": {
-                "request_id": request.headers.get("X-Request-ID", ""),
+                "request_id": request_id,
             },
         },
     )

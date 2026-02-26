@@ -17,6 +17,7 @@ from src.application.commands.profile_commands import (
     UpdatePreferencesCommand,
     UploadAvatarCommand,
 )
+from src.application.interfaces.profile_service import IProfileService
 from src.application.queries.profile_queries import GetProfileQuery, ListProfilesQuery
 from src.domain.entities.profile import Address, UserProfile
 from src.domain.exceptions import (
@@ -34,7 +35,7 @@ from src.domain.value_objects.notification_preferences import NotificationPrefer
 logger = structlog.get_logger()
 
 
-class ProfileService:
+class ProfileService(IProfileService):
     def __init__(
         self,
         profile_repo: ProfileRepository,

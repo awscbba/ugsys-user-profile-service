@@ -3,7 +3,10 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
+import pytest
+
 from src.domain.entities.profile import Address, UserProfile
+from src.domain.exceptions import NotFoundError, RepositoryError
 from src.domain.value_objects.notification_preferences import NotificationPreferences
 
 
@@ -167,3 +170,25 @@ async def test_delete_removes_item(profile_repo) -> None:  # type: ignore[no-unt
     await profile_repo.delete(profile.user_id)
     found = await profile_repo.find_by_user_id(profile.user_id)
     assert found is None
+
+
+# ── ClientError wrapping ──────────────────────────────────────────────────────
+
+
+async def test_save_duplicate_raises_repository_error(profile_repo) -> None:
+    """4.5.4 Saving a profile that already exists raises RepositoryError."""
+    profile = make_profile()
+    await profile_repo.save(profile)
+    with pytest.raises(RepositoryError) as exc_info:
+        await profile_repo.save(profile)
+    assert exc_info.value.error_code == "REPOSITORY_ERROR"
+    assert exc_info.value.user_message == "An unexpected error occurred"
+
+
+async def test_update_nonexistent_raises_not_found_error(profile_repo) -> None:
+    """4.5.5 Updating a profile that doesn't exist raises NotFoundError."""
+    profile = make_profile()
+    with pytest.raises(NotFoundError) as exc_info:
+        await profile_repo.update(profile)
+    assert exc_info.value.error_code == "NOT_FOUND"
+    assert exc_info.value.user_message == "Profile not found"

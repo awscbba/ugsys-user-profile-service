@@ -1,0 +1,4 @@
+# file: /home/srinclan/Projects/Community/AWS/AWSUserGroupCbba/GitHub/ugsys-user-profile-service/.venv/bin/pytest
+# hypothesis_version: 6.151.9
+
+['-script.pyw', '.exe', '__main__']

@@ -1,0 +1,4 @@
+# file: /home/srinclan/Projects/Community/AWS/AWSUserGroupCbba/GitHub/ugsys-user-profile-service/src/infrastructure/persistence/dynamodb_profile_repository.py
+# hypothesis_version: 6.151.9
+
+['America/La_Paz', 'ExclusiveStartKey', 'FilterExpression', 'Item', 'Items', 'LastEvaluatedKey', 'PROFILE', 'address', 'avatar_url', 'bio', 'city', 'country', 'created_at', 'date_of_birth', 'deleted_at', 'display_name', 'dynamodb', 'email', 'email_verified', 'es', 'full_name', 'language', 'migrated_at', 'migrated_from', 'phone', 'pk', 'postal_code', 'sk', 'sms', 'state', 'street', 'timezone', 'updated_at', 'us-east-1', 'user_id', 'whatsapp']

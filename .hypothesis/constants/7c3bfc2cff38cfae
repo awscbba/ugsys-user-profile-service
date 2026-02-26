@@ -1,0 +1,4 @@
+# file: /home/srinclan/Projects/Community/AWS/AWSUserGroupCbba/GitHub/ugsys-user-profile-service/src/presentation/middleware/exception_handler.py
+# hypothesis_version: 6.151.9
+
+[401, 403, 404, 409, 422, 423, 500, 502, 'INTERNAL_ERROR', 'code', 'domain_error', 'error', 'message', 'meta', 'request_id', 'unhandled_exception']

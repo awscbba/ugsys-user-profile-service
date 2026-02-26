@@ -3,6 +3,7 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
+import aioboto3
 import structlog
 from fastapi import FastAPI
 from mangum import Mangum
@@ -53,14 +54,19 @@ def create_app() -> FastAPI:
     app.add_exception_handler(DomainError, domain_exception_handler)  # type: ignore[arg-type]
     app.add_exception_handler(Exception, unhandled_exception_handler)
 
+    # Shared aioboto3 session
+    _session = aioboto3.Session()
+
     # Wire infrastructure
     _repo = DynamoDBProfileRepository(
         table_name=settings.profiles_table,
         region=settings.aws_region,
+        session=_session,
     )
     _avatar_storage = S3AvatarStorage(
         bucket_name=settings.avatars_bucket_name,
         region=settings.aws_region,
+        session=_session,
     )
     _publisher = EventBridgePublisher(
         event_bus_name=settings.event_bus_name,

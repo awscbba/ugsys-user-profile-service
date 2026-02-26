@@ -1,0 +1,4 @@
+# file: /home/srinclan/Projects/Community/AWS/AWSUserGroupCbba/GitHub/ugsys-user-profile-service/src/domain/exceptions.py
+# hypothesis_version: 6.151.9
+
+['ACCOUNT_LOCKED', 'An error occurred', 'CONFLICT', 'FORBIDDEN', 'INTERNAL_ERROR', 'NOT_FOUND', 'REPOSITORY_ERROR', 'VALIDATION_ERROR']

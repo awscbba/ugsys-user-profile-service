@@ -1,0 +1,4 @@
+# file: /home/srinclan/Projects/Community/AWS/AWSUserGroupCbba/GitHub/ugsys-user-profile-service/src/application/services/profile_service.py
+# hypothesis_version: 6.151.9
+
+[100, 500, 1000, 1024, '.', 'Access denied', 'Profile not found', 'avatar_url', 'bio', 'changed_fields', 'contact', 'display_name', 'image/jpeg', 'image/png', 'image/webp', 'jpg', 'language', 'personal', 'png', 'profile.created', 'profile.deleted', 'profile.updated', 'timezone', 'user_id', 'webp']

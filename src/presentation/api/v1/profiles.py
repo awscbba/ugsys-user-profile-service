@@ -17,8 +17,8 @@ from src.application.commands.profile_commands import (
     UpdatePreferencesCommand,
     UploadAvatarCommand,
 )
+from src.application.interfaces.profile_service import IProfileService
 from src.application.queries.profile_queries import GetProfileQuery, ListProfilesQuery
-from src.application.services.profile_service import ProfileService
 from src.domain.entities.profile import UserProfile
 from src.domain.exceptions import AuthorizationError
 from src.presentation.middleware.correlation_id import correlation_id_var
@@ -62,7 +62,7 @@ class UpdateDisplayRequest(BaseModel):
 # ── Dependency stubs ───────────────────────────────────────────────────────────
 
 
-def get_profile_service() -> ProfileService:  # pragma: no cover
+def get_profile_service() -> IProfileService:  # pragma: no cover
     raise NotImplementedError("ProfileService not wired")
 
 
@@ -123,7 +123,7 @@ def _profile_dict(p: UserProfile) -> dict[str, Any]:
 @router.get("/me")
 async def get_my_profile(
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
-    profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
+    profile_service: IProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
 ) -> dict[str, Any]:
     claims = _extract_claims(credentials, token_service)
@@ -140,7 +140,7 @@ async def list_profiles(
     page: int = 1,
     page_size: int = 20,
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
-    profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
+    profile_service: IProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
 ) -> dict[str, Any]:
     """List all profiles — admin only."""
@@ -177,7 +177,7 @@ async def list_profiles(
 async def get_profile(
     user_id: UUID,
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
-    profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
+    profile_service: IProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
 ) -> dict[str, Any]:
     claims = _extract_claims(credentials, token_service)
@@ -196,7 +196,7 @@ async def update_contact(
     user_id: UUID,
     body: UpdateContactRequest,
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
-    profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
+    profile_service: IProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
 ) -> dict[str, Any]:
     claims = _extract_claims(credentials, token_service)
@@ -225,7 +225,7 @@ async def update_personal(
     user_id: UUID,
     body: UpdatePersonalRequest,
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
-    profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
+    profile_service: IProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
 ) -> dict[str, Any]:
     claims = _extract_claims(credentials, token_service)
@@ -247,7 +247,7 @@ async def upload_avatar(
     user_id: UUID,
     file: UploadFile = File(...),  # noqa: B008
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
-    profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
+    profile_service: IProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
 ) -> dict[str, Any]:
     claims = _extract_claims(credentials, token_service)
@@ -272,7 +272,7 @@ async def upload_avatar(
 async def delete_avatar(
     user_id: UUID,
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
-    profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
+    profile_service: IProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
 ) -> Response:
     claims = _extract_claims(credentials, token_service)
@@ -294,7 +294,7 @@ async def update_preferences(
     user_id: UUID,
     body: UpdatePreferencesRequest,
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
-    profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
+    profile_service: IProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
 ) -> dict[str, Any]:
     claims = _extract_claims(credentials, token_service)
@@ -322,7 +322,7 @@ async def update_display(
     user_id: UUID,
     body: UpdateDisplayRequest,
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
-    profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
+    profile_service: IProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
 ) -> dict[str, Any]:
     claims = _extract_claims(credentials, token_service)
@@ -346,7 +346,7 @@ async def update_display(
 async def soft_delete_profile(
     user_id: UUID,
     credentials: HTTPAuthorizationCredentials = Security(bearer),  # noqa: B008
-    profile_service: ProfileService = Depends(get_profile_service),  # noqa: B008
+    profile_service: IProfileService = Depends(get_profile_service),  # noqa: B008
     token_service: object = Depends(get_token_service),
 ) -> Response:
     """Soft-delete a profile — admin only."""
