@@ -1,0 +1,204 @@
+# Implementation Plan: User Profile Enterprise Patterns
+
+## Overview
+
+Implement four enterprise-pattern gaps in `ugsys-user-profile-service`: async EventBridge publisher with error propagation, Lambda consumer entry point, application DTO extraction with `ProfileResponse`, and `IProfileService` inbound port interface. Follow strict TDD order — write the failing test first, then implement.
+
+## Tasks
+
+- [x] 1. Application DTOs — profile_dtos.py
+  - [x] 1.1 Write unit tests for request DTOs and ProfileResponse.from_domain()
+    - Create `tests/unit/application/test_profile_dtos.py`
+    - Test `UpdateContactRequest`, `UpdatePersonalRequest`, `UpdatePreferencesRequest`, `UpdateDisplayRequest` instantiate with all-None fields
+    - Test `ProfileResponse.from_domain()` with a fully populated `UserProfile` — verify every field maps correctly, `user_id == str(profile.user_id)`
+    - Test `ProfileResponse.from_domain()` with `deleted_at=None` — verify `deleted_at` is `None`
+    - Test `ProfileResponse.from_domain()` with `deleted_at` set to a datetime — verify result equals `profile.deleted_at.isoformat()`
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 5.1, 5.2, 5.3, 5.4_
+  - [x] 1.2 Implement profile_dtos.py
+    - Create `src/application/dtos/profile_dtos.py`
+    - Define `UpdateContactRequest` with fields: `phone`, `street`, `city`, `state`, `postal_code`, `country` — all `str | None = None`
+    - Define `UpdatePersonalRequest` with fields: `full_name: str | None`, `date_of_birth: str | None`
+    - Define `UpdatePreferencesRequest` with fields: `notification_preferences_email`, `notification_preferences_sms`, `notification_preferences_whatsapp` (all `bool | None`), `language: str | None`, `timezone: str | None`
+    - Define `UpdateDisplayRequest` with fields: `bio: str | None`, `display_name: str | None`
+    - Define `AddressResponse` and `NotificationPreferencesResponse` nested models
+    - Define `ProfileResponse` with all `UserProfile` public fields and `from_domain(cls, profile: UserProfile) -> ProfileResponse` classmethod
+    - `deleted_at` maps as `profile.deleted_at.isoformat() if profile.deleted_at is not None else None`
+    - _Requirements: 4.1, 4.2, 4.3, 4.4, 5.1, 5.2, 5.3, 5.4_
+  - [ ]* 1.3 Write property test for ProfileResponse.from_domain() field mapping
+    - Create `tests/property/test_profile_dto_properties.py`
+    - **Property 4: ProfileResponse.from_domain() correctly maps all UserProfile fields**
+    - **Validates: Requirements 5.3, 5.4, 8.4**
+    - Use `@given(st.builds(UserProfile, user_id=st.uuids(), email=st.emails(), full_name=st.text(min_size=1, max_size=100), deleted_at=st.one_of(st.none(), st.datetimes(timezones=st.just(UTC))), ...))`
+    - Assert `user_id == str(profile.user_id)`, `email == profile.email`, `full_name == profile.full_name`, and `deleted_at` mapping is correct
+    - Tag: `# Feature: user-profile-enterprise-patterns, Property 4: ProfileResponse.from_domain() correctly maps all UserProfile fields`
+    - `@settings(max_examples=100)`
+    - _Requirements: 5.3, 5.4, 8.4_
+
+- [x] 2. IProfileService ABC
+  - [x] 2.1 Write unit tests for IProfileService interface compliance
+    - Create `tests/unit/application/test_iprofile_service.py`
+    - Test that a stub class missing one abstract method raises `TypeError` on instantiation
+    - Test that a stub class implementing all 14 methods does not raise `TypeError`
+    - _Requirements: 6.1, 6.2, 6.3, 7.4_
+  - [x] 2.2 Implement IProfileService ABC
+    - Create `src/application/interfaces/profile_service.py`
+    - Define `IProfileService(ABC)` with 14 abstract async methods: `get_profile`, `create_profile`, `update_contact`, `update_personal`, `delete_profile`, `upload_avatar`, `delete_avatar`, `update_preferences`, `update_display`, `list_profiles`, `soft_delete_profile`, `get_profile_by_id`, `deactivate_profile`, `clear_password_change_flag`
+    - Method signatures must match `ProfileService` exactly — same parameter names, type annotations, and return types
+    - Imports only from `src/domain/` and `src/application/commands/`, `src/application/queries/` — never from `src/infrastructure/` or `src/presentation/`
+    - _Requirements: 6.1, 6.2, 6.3_
+  - [ ]* 2.3 Write property test for IProfileService ABC enforcement
+    - Add to `tests/property/test_iprofile_service_properties.py`
+    - **Property 5: IProfileService ABC enforces interface compliance**
+    - **Validates: Requirements 7.4, 8.3**
+    - Generate stub classes programmatically by removing 1..14 methods from a complete stub — assert each raises `TypeError`
+    - Assert `ProfileService()` (with mocked dependencies) does not raise `TypeError`
+    - Tag: `# Feature: user-profile-enterprise-patterns, Property 5: IProfileService ABC enforces interface compliance`
+    - `@settings(max_examples=100)`
+    - _Requirements: 7.4, 8.3_
+
+- [x] 3. ProfileService inherits IProfileService
+  - [x] 3.1 Write unit test verifying ProfileService satisfies IProfileService
+    - Add to `tests/unit/application/test_iprofile_service.py`
+    - Instantiate `ProfileService` with `AsyncMock` dependencies — verify no `TypeError` is raised
+    - Verify `isinstance(service, IProfileService)` is `True`
+    - _Requirements: 7.1, 7.4_
+  - [x] 3.2 Update ProfileService class declaration
+    - In `src/application/services/profile_service.py`, change `class ProfileService:` to `class ProfileService(IProfileService):`
+    - Add import: `from src.application.interfaces.profile_service import IProfileService`
+    - No method signatures change — this is a single-line class declaration update
+    - _Requirements: 7.1_
+
+- [x] 4. Router updates — import DTOs and use IProfileService
+  - [x] 4.1 Write unit tests for router with IProfileService type annotation
+    - Create or update `tests/unit/presentation/test_profiles_router.py`
+    - Mock `IProfileService` (not `ProfileService`) as the injected dependency — verify all endpoints accept the interface
+    - Verify `ProfileResponse.from_domain()` is used (not `_profile_dict()`) by checking the response shape matches `ProfileResponse` fields
+    - _Requirements: 4.5, 5.5, 7.2, 7.3_
+  - [x] 4.2 Update profiles.py router
+    - In `src/presentation/api/v1/profiles.py`, remove all four inline Pydantic model definitions (`UpdateContactRequest`, `UpdatePersonalRequest`, `UpdatePreferencesRequest`, `UpdateDisplayRequest`)
+    - Add imports: `from src.application.dtos.profile_dtos import UpdateContactRequest, UpdatePersonalRequest, UpdatePreferencesRequest, UpdateDisplayRequest, ProfileResponse`
+    - Add import: `from src.application.interfaces.profile_service import IProfileService`
+    - Replace every `_profile_dict(profile)` call with `ProfileResponse.from_domain(profile).model_dump()`
+    - Remove the `_profile_dict()` helper function entirely
+    - Update `get_profile_service()` return type annotation to `IProfileService`
+    - Update all endpoint function signatures that type-annotate the service parameter to use `IProfileService`
+    - _Requirements: 4.5, 5.5, 7.2, 7.3_
+
+- [x] 5. Checkpoint — run all tests so far
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 6. EventBridgePublisher — aioboto3 migration and error propagation
+  - [x] 6.1 Write unit tests for async EventBridgePublisher
+    - Create `tests/unit/infrastructure/test_event_publisher.py`
+    - Test success path: mock `aioboto3.Session`, verify `async with session.client("events", ...)` is used, verify `put_events` is awaited, verify `info` log with `detail_type` and `event_id`
+    - Test `FailedEntryCount > 0`: mock response with `FailedEntryCount=1` — verify `ExternalServiceError` is raised
+    - Test `put_events` raises `ClientError` — verify `ExternalServiceError` is raised (not `ClientError`)
+    - Test `put_events` raises generic `Exception` — verify `ExternalServiceError` is raised
+    - Test `ExternalServiceError` raised inside `try` block is re-raised directly (no double-wrapping)
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 2.1, 2.2, 2.3, 2.4_
+  - [x] 6.2 Implement async EventBridgePublisher
+    - In `src/infrastructure/messaging/event_publisher.py`:
+    - Replace `self._client = boto3.client(...)` in `__init__` with `self._session: aioboto3.Session`
+    - Add `session: aioboto3.Session` parameter to `__init__`; remove `region` from boto3 call
+    - In `publish()`: open client with `async with self._session.client("events", region_name=self._region) as client:`
+    - Await `client.put_events(...)` inside the context manager
+    - After `put_events`, check `response["FailedEntryCount"] > 0` → raise `ExternalServiceError` with failed entry details in `message`
+    - Wrap the entire block in `try/except ExternalServiceError: raise` then `except Exception as e:` → log `error` with `detail_type` and `error=str(e)` → raise `ExternalServiceError`
+    - Move success `logger.info(...)` to after the `try` block (only reached on clean success)
+    - Add `import aioboto3` and `import json`; remove `import boto3`
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 2.1, 2.2, 2.3, 2.4_
+  - [ ]* 6.3 Write property test: FailedEntryCount always triggers ExternalServiceError
+    - Create `tests/property/test_event_publisher_properties.py`
+    - **Property 1: FailedEntryCount triggers ExternalServiceError**
+    - **Validates: Requirements 2.3, 8.1**
+    - Use `@given(failed_count=st.integers(min_value=1, max_value=1000))`
+    - Mock `aioboto3.Session` so `put_events` returns `{"FailedEntryCount": failed_count, "Entries": [...]}`
+    - Assert `ExternalServiceError` is always raised
+    - Tag: `# Feature: user-profile-enterprise-patterns, Property 1: FailedEntryCount triggers ExternalServiceError`
+    - `@settings(max_examples=100)`
+    - _Requirements: 2.3, 8.1_
+  - [ ]* 6.4 Write property test: aioboto3 exceptions always propagate as ExternalServiceError
+    - Add to `tests/property/test_event_publisher_properties.py`
+    - **Property 2: aioboto3 client exceptions always propagate as ExternalServiceError**
+    - **Validates: Requirements 2.1, 2.2, 8.2**
+    - Use `@given(exc=st.sampled_from([ClientError(...), ConnectionError(...), TimeoutError(...), RuntimeError(...)]))`
+    - Mock `aioboto3.Session` so `put_events` raises the sampled exception
+    - Assert `ExternalServiceError` is raised and the publisher never returns normally
+    - Tag: `# Feature: user-profile-enterprise-patterns, Property 2: aioboto3 client exceptions always propagate as ExternalServiceError`
+    - `@settings(max_examples=100)`
+    - _Requirements: 2.1, 2.2, 8.2_
+
+- [x] 7. main_consumer.py — Lambda entry point
+  - [x] 7.1 Write unit tests for lambda_handler
+    - Create `tests/unit/test_main_consumer.py`
+    - Test success path: mock `handle_event` to return normally — verify `{"statusCode": 200, "body": "OK"}` is returned
+    - Test failure path: mock `handle_event` to raise `RuntimeError` — verify the exception is re-raised (not swallowed)
+    - Test envelope extraction: verify `detail_type = event["detail-type"]` and `payload = event["detail"]["payload"]` are correctly extracted and passed to `handle_event` as `{"detail-type": detail_type, "detail": payload}`
+    - _Requirements: 3.2, 3.4, 3.5, 3.6, 3.7_
+  - [x] 7.2 Implement main_consumer.py
+    - Create `src/main_consumer.py`
+    - Call `configure_logging(settings.service_name)` at module level (outside `lambda_handler`) — runs once on cold start
+    - Define `lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]`
+    - Inside `lambda_handler`, extract `detail_type = event.get("detail-type", "")` and log `consumer.invoked`
+    - Define inner `async def _run() -> None:` that creates `aioboto3.Session()`, opens DynamoDB and S3 clients via `async with`, wires `DynamoDBProfileRepository`, `S3AvatarRepository`, `EventBridgePublisher(session=session, ...)`, and `ProfileService`
+    - Extract `payload = event.get("detail", {}).get("payload", event.get("detail", {}))` and reconstruct `{"detail-type": detail_type, "detail": payload}` for `handle_event()`
+    - Call `asyncio.run(_run())`
+    - On success return `{"statusCode": 200, "body": "OK"}`
+    - Wrap `asyncio.run(_run())` in `try/except Exception as e:` → log `consumer.failed` with `detail_type` and `error=str(e)` → re-raise
+    - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8_
+  - [ ]* 7.3 Write property test: lambda_handler always re-raises handle_event exceptions
+    - Create `tests/property/test_consumer_properties.py`
+    - **Property 3: Lambda consumer always re-raises handle_event exceptions**
+    - **Validates: Requirements 3.7**
+    - Use `@given(exc=st.sampled_from([ValueError("bad"), RuntimeError("crash"), ConflictError(...)]))`
+    - Mock `handle_event` to raise the sampled exception
+    - Assert `lambda_handler` re-raises the same exception type and never returns `{"statusCode": 200}`
+    - Tag: `# Feature: user-profile-enterprise-patterns, Property 3: Lambda consumer always re-raises handle_event exceptions`
+    - `@settings(max_examples=100)`
+    - _Requirements: 3.7_
+  - [ ]* 7.4 Write property test: consumer idempotency on ConflictError
+    - Add to `tests/property/test_consumer_properties.py`
+    - **Property 6: Consumer idempotency — ConflictError on duplicate profile does not propagate**
+    - **Validates: Requirements 8.5**
+    - Use `@given(user_id=st.uuids())`
+    - Mock `ProfileService.create_profile` to raise `ConflictError`
+    - Call `handle_event({"detail-type": "identity.user.registered", "detail": {"user_id": str(user_id), ...}}, service)`
+    - Assert no exception is raised
+    - Tag: `# Feature: user-profile-enterprise-patterns, Property 6: Consumer idempotency — ConflictError on duplicate profile does not propagate`
+    - `@settings(max_examples=100)`
+    - _Requirements: 8.5_
+  - [ ]* 7.5 Write property test: unknown event types do not raise
+    - Add to `tests/property/test_consumer_properties.py`
+    - **Property 7: Unknown event types do not cause handle_event to raise**
+    - **Validates: Requirements 8.6**
+    - Use `@given(detail_type=st.text().filter(lambda s: s not in {"identity.user.registered", "identity.user.deactivated", "identity.auth.password_changed"}))`
+    - Call `handle_event({"detail-type": detail_type, "detail": {}}, mock_service)`
+    - Assert no exception is raised
+    - Tag: `# Feature: user-profile-enterprise-patterns, Property 7: Unknown event types do not cause handle_event to raise`
+    - `@settings(max_examples=100)`
+    - _Requirements: 8.6_
+
+- [x] 8. main.py wiring update
+  - [x] 8.1 Write unit test for updated main.py wiring
+    - Add to `tests/unit/test_main_consumer.py` or create `tests/unit/test_main_wiring.py`
+    - Verify `EventBridgePublisher` is instantiated with a `session` keyword argument of type `aioboto3.Session`
+    - _Requirements: 1.4_
+  - [x] 8.2 Update EventBridgePublisher instantiation in main.py
+    - In `src/main.py`, locate the `EventBridgePublisher(...)` instantiation inside `lifespan` / `_wire_dependencies()`
+    - Add `session = aioboto3.Session()` before the publisher instantiation (or reuse the existing session if one is already created)
+    - Update the call to `EventBridgePublisher(bus_name=settings.event_bus_name, region=settings.aws_region, session=session)`
+    - Add `import aioboto3` if not already present
+    - _Requirements: 1.3, 1.4_
+
+- [x] 9. Final checkpoint — ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+## Notes
+
+- Tasks marked with `*` are optional and can be skipped for a faster MVP
+- Each task references specific requirements for traceability
+- Checkpoints ensure incremental validation
+- Property tests validate universal correctness invariants; unit tests validate specific examples and edge cases
+- TDD order is strict: write the failing test first (RED), then implement (GREEN), then refactor
+- The `ExternalServiceError` re-raise guard (`except ExternalServiceError: raise`) prevents double-wrapping when `FailedEntryCount > 0` triggers the error inside the `try` block
+- `configure_logging()` in `main_consumer.py` is called at module level so it executes once per Lambda cold start, not once per invocation

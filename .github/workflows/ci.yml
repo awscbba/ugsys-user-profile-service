@@ -133,3 +133,42 @@ jobs:
                 }
               ]
             }
+
+  notify-success:
+    name: Notify on Success
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test, sast, secret-scan, arch-guard]
+    if: success()
+    steps:
+      - name: Slack success notification
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            {
+              "channel": "C0AE6QV0URH",
+              "username": "ugsys CI/CD",
+              "icon_emoji": ":white_check_mark:",
+              "text": "✅ CI Passed — ugsys-user-profile-service",
+              "blocks": [
+                {
+                  "type": "header",
+                  "text": {"type": "plain_text", "text": "✅ CI Passed — ugsys-user-profile-service", "emoji": true}
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {"type": "mrkdwn", "text": "*Branch:*\n`${{ github.ref_name }}`"},
+                    {"type": "mrkdwn", "text": "*Triggered by:*\n${{ github.actor }}"}
+                  ]
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {"type": "button", "text": {"type": "plain_text", "text": "View Run"},
+                     "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}
+                  ]
+                }
+              ]
+            }

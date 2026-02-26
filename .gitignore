@@ -12,4 +12,4 @@ dist/
 .env
 !.envrc.example
 .devbox/
-
+.hypothesis/
