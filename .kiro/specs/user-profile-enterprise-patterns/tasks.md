@@ -6,15 +6,15 @@ Implement four enterprise-pattern gaps in `ugsys-user-profile-service`: async Ev
 
 ## Tasks
 
-- [ ] 1. Application DTOs — profile_dtos.py
-  - [ ] 1.1 Write unit tests for request DTOs and ProfileResponse.from_domain()
+- [x] 1. Application DTOs — profile_dtos.py
+  - [x] 1.1 Write unit tests for request DTOs and ProfileResponse.from_domain()
     - Create `tests/unit/application/test_profile_dtos.py`
     - Test `UpdateContactRequest`, `UpdatePersonalRequest`, `UpdatePreferencesRequest`, `UpdateDisplayRequest` instantiate with all-None fields
     - Test `ProfileResponse.from_domain()` with a fully populated `UserProfile` — verify every field maps correctly, `user_id == str(profile.user_id)`
     - Test `ProfileResponse.from_domain()` with `deleted_at=None` — verify `deleted_at` is `None`
     - Test `ProfileResponse.from_domain()` with `deleted_at` set to a datetime — verify result equals `profile.deleted_at.isoformat()`
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 5.1, 5.2, 5.3, 5.4_
-  - [ ] 1.2 Implement profile_dtos.py
+  - [x] 1.2 Implement profile_dtos.py
     - Create `src/application/dtos/profile_dtos.py`
     - Define `UpdateContactRequest` with fields: `phone`, `street`, `city`, `state`, `postal_code`, `country` — all `str | None = None`
     - Define `UpdatePersonalRequest` with fields: `full_name: str | None`, `date_of_birth: str | None`
@@ -34,13 +34,13 @@ Implement four enterprise-pattern gaps in `ugsys-user-profile-service`: async Ev
     - `@settings(max_examples=100)`
     - _Requirements: 5.3, 5.4, 8.4_
 
-- [ ] 2. IProfileService ABC
-  - [ ] 2.1 Write unit tests for IProfileService interface compliance
+- [x] 2. IProfileService ABC
+  - [x] 2.1 Write unit tests for IProfileService interface compliance
     - Create `tests/unit/application/test_iprofile_service.py`
     - Test that a stub class missing one abstract method raises `TypeError` on instantiation
     - Test that a stub class implementing all 14 methods does not raise `TypeError`
     - _Requirements: 6.1, 6.2, 6.3, 7.4_
-  - [ ] 2.2 Implement IProfileService ABC
+  - [x] 2.2 Implement IProfileService ABC
     - Create `src/application/interfaces/profile_service.py`
     - Define `IProfileService(ABC)` with 14 abstract async methods: `get_profile`, `create_profile`, `update_contact`, `update_personal`, `delete_profile`, `upload_avatar`, `delete_avatar`, `update_preferences`, `update_display`, `list_profiles`, `soft_delete_profile`, `get_profile_by_id`, `deactivate_profile`, `clear_password_change_flag`
     - Method signatures must match `ProfileService` exactly — same parameter names, type annotations, and return types
@@ -56,25 +56,25 @@ Implement four enterprise-pattern gaps in `ugsys-user-profile-service`: async Ev
     - `@settings(max_examples=100)`
     - _Requirements: 7.4, 8.3_
 
-- [ ] 3. ProfileService inherits IProfileService
-  - [ ] 3.1 Write unit test verifying ProfileService satisfies IProfileService
+- [x] 3. ProfileService inherits IProfileService
+  - [x] 3.1 Write unit test verifying ProfileService satisfies IProfileService
     - Add to `tests/unit/application/test_iprofile_service.py`
     - Instantiate `ProfileService` with `AsyncMock` dependencies — verify no `TypeError` is raised
     - Verify `isinstance(service, IProfileService)` is `True`
     - _Requirements: 7.1, 7.4_
-  - [ ] 3.2 Update ProfileService class declaration
+  - [x] 3.2 Update ProfileService class declaration
     - In `src/application/services/profile_service.py`, change `class ProfileService:` to `class ProfileService(IProfileService):`
     - Add import: `from src.application.interfaces.profile_service import IProfileService`
     - No method signatures change — this is a single-line class declaration update
     - _Requirements: 7.1_
 
-- [ ] 4. Router updates — import DTOs and use IProfileService
-  - [ ] 4.1 Write unit tests for router with IProfileService type annotation
+- [x] 4. Router updates — import DTOs and use IProfileService
+  - [x] 4.1 Write unit tests for router with IProfileService type annotation
     - Create or update `tests/unit/presentation/test_profiles_router.py`
     - Mock `IProfileService` (not `ProfileService`) as the injected dependency — verify all endpoints accept the interface
     - Verify `ProfileResponse.from_domain()` is used (not `_profile_dict()`) by checking the response shape matches `ProfileResponse` fields
     - _Requirements: 4.5, 5.5, 7.2, 7.3_
-  - [ ] 4.2 Update profiles.py router
+  - [x] 4.2 Update profiles.py router
     - In `src/presentation/api/v1/profiles.py`, remove all four inline Pydantic model definitions (`UpdateContactRequest`, `UpdatePersonalRequest`, `UpdatePreferencesRequest`, `UpdateDisplayRequest`)
     - Add imports: `from src.application.dtos.profile_dtos import UpdateContactRequest, UpdatePersonalRequest, UpdatePreferencesRequest, UpdateDisplayRequest, ProfileResponse`
     - Add import: `from src.application.interfaces.profile_service import IProfileService`
@@ -84,11 +84,11 @@ Implement four enterprise-pattern gaps in `ugsys-user-profile-service`: async Ev
     - Update all endpoint function signatures that type-annotate the service parameter to use `IProfileService`
     - _Requirements: 4.5, 5.5, 7.2, 7.3_
 
-- [ ] 5. Checkpoint — run all tests so far
+- [x] 5. Checkpoint — run all tests so far
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 6. EventBridgePublisher — aioboto3 migration and error propagation
-  - [ ] 6.1 Write unit tests for async EventBridgePublisher
+- [x] 6. EventBridgePublisher — aioboto3 migration and error propagation
+  - [x] 6.1 Write unit tests for async EventBridgePublisher
     - Create `tests/unit/infrastructure/test_event_publisher.py`
     - Test success path: mock `aioboto3.Session`, verify `async with session.client("events", ...)` is used, verify `put_events` is awaited, verify `info` log with `detail_type` and `event_id`
     - Test `FailedEntryCount > 0`: mock response with `FailedEntryCount=1` — verify `ExternalServiceError` is raised
@@ -96,7 +96,7 @@ Implement four enterprise-pattern gaps in `ugsys-user-profile-service`: async Ev
     - Test `put_events` raises generic `Exception` — verify `ExternalServiceError` is raised
     - Test `ExternalServiceError` raised inside `try` block is re-raised directly (no double-wrapping)
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 2.1, 2.2, 2.3, 2.4_
-  - [ ] 6.2 Implement async EventBridgePublisher
+  - [x] 6.2 Implement async EventBridgePublisher
     - In `src/infrastructure/messaging/event_publisher.py`:
     - Replace `self._client = boto3.client(...)` in `__init__` with `self._session: aioboto3.Session`
     - Add `session: aioboto3.Session` parameter to `__init__`; remove `region` from boto3 call
@@ -128,14 +128,14 @@ Implement four enterprise-pattern gaps in `ugsys-user-profile-service`: async Ev
     - `@settings(max_examples=100)`
     - _Requirements: 2.1, 2.2, 8.2_
 
-- [ ] 7. main_consumer.py — Lambda entry point
-  - [ ] 7.1 Write unit tests for lambda_handler
+- [x] 7. main_consumer.py — Lambda entry point
+  - [x] 7.1 Write unit tests for lambda_handler
     - Create `tests/unit/test_main_consumer.py`
     - Test success path: mock `handle_event` to return normally — verify `{"statusCode": 200, "body": "OK"}` is returned
     - Test failure path: mock `handle_event` to raise `RuntimeError` — verify the exception is re-raised (not swallowed)
     - Test envelope extraction: verify `detail_type = event["detail-type"]` and `payload = event["detail"]["payload"]` are correctly extracted and passed to `handle_event` as `{"detail-type": detail_type, "detail": payload}`
     - _Requirements: 3.2, 3.4, 3.5, 3.6, 3.7_
-  - [ ] 7.2 Implement main_consumer.py
+  - [x] 7.2 Implement main_consumer.py
     - Create `src/main_consumer.py`
     - Call `configure_logging(settings.service_name)` at module level (outside `lambda_handler`) — runs once on cold start
     - Define `lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]`
@@ -178,19 +178,19 @@ Implement four enterprise-pattern gaps in `ugsys-user-profile-service`: async Ev
     - `@settings(max_examples=100)`
     - _Requirements: 8.6_
 
-- [ ] 8. main.py wiring update
-  - [ ] 8.1 Write unit test for updated main.py wiring
+- [x] 8. main.py wiring update
+  - [x] 8.1 Write unit test for updated main.py wiring
     - Add to `tests/unit/test_main_consumer.py` or create `tests/unit/test_main_wiring.py`
     - Verify `EventBridgePublisher` is instantiated with a `session` keyword argument of type `aioboto3.Session`
     - _Requirements: 1.4_
-  - [ ] 8.2 Update EventBridgePublisher instantiation in main.py
+  - [x] 8.2 Update EventBridgePublisher instantiation in main.py
     - In `src/main.py`, locate the `EventBridgePublisher(...)` instantiation inside `lifespan` / `_wire_dependencies()`
     - Add `session = aioboto3.Session()` before the publisher instantiation (or reuse the existing session if one is already created)
     - Update the call to `EventBridgePublisher(bus_name=settings.event_bus_name, region=settings.aws_region, session=session)`
     - Add `import aioboto3` if not already present
     - _Requirements: 1.3, 1.4_
 
-- [ ] 9. Final checkpoint — ensure all tests pass
+- [x] 9. Final checkpoint — ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes
