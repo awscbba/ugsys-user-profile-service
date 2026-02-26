@@ -71,6 +71,7 @@ def create_app() -> FastAPI:
     _publisher = EventBridgePublisher(
         event_bus_name=settings.event_bus_name,
         region=settings.aws_region,
+        session=_session,
     )
 
     # Wire application service

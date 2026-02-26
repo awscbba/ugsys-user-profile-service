@@ -1,4 +1,0 @@
-# file: /home/srinclan/Projects/Community/AWS/AWSUserGroupCbba/GitHub/ugsys-user-profile-service/src/presentation/middleware/security_headers.py
-# hypothesis_version: 6.151.9
-
-['/api/', '0', 'Cache-Control', 'DENY', 'Permissions-Policy', 'Referrer-Policy', 'X-Frame-Options', 'X-XSS-Protection', 'nosniff', 'same-origin', 'server']

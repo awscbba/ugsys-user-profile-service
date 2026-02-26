@@ -1,4 +1,0 @@
-# file: /home/srinclan/Projects/Community/AWS/AWSUserGroupCbba/GitHub/ugsys-user-profile-service/src/infrastructure/persistence/dynamodb_profile_repository.py
-# hypothesis_version: 6.151.9
-
-[':null', 'America/La_Paz', 'BOOL', 'Code', 'Error', 'ExclusiveStartKey', 'FilterExpression', 'Item', 'Items', 'LastEvaluatedKey', 'M', 'NOT_FOUND', 'NULL', 'PROFILE', 'Profile not found', 'REPOSITORY_ERROR', 'S', 'TableName', 'address', 'attribute_exists(pk)', 'avatar_url', 'bio', 'city', 'country', 'created_at', 'date_of_birth', 'delete', 'deleted_at', 'display_name', 'dynamodb', 'dynamodb.error', 'email', 'email_verified', 'es', 'find_by_user_id', 'full_name', 'language', 'list_profiles', 'migrated_at', 'migrated_from', 'phone', 'pk', 'postal_code', 'save', 'sk', 'sms', 'state', 'street', 'timezone', 'update', 'updated_at', 'us-east-1', 'user_id', 'whatsapp']

@@ -6,7 +6,6 @@ from uuid import UUID
 import structlog
 from fastapi import APIRouter, Depends, File, HTTPException, Response, Security, UploadFile, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import BaseModel
 
 from src.application.commands.profile_commands import (
     DeleteAvatarCommand,
@@ -17,9 +16,15 @@ from src.application.commands.profile_commands import (
     UpdatePreferencesCommand,
     UploadAvatarCommand,
 )
+from src.application.dtos.profile_dtos import (
+    ProfileResponse,
+    UpdateContactRequest,
+    UpdateDisplayRequest,
+    UpdatePersonalRequest,
+    UpdatePreferencesRequest,
+)
 from src.application.interfaces.profile_service import IProfileService
 from src.application.queries.profile_queries import GetProfileQuery, ListProfilesQuery
-from src.domain.entities.profile import UserProfile
 from src.domain.exceptions import AuthorizationError
 from src.presentation.middleware.correlation_id import correlation_id_var
 from src.presentation.response_envelope import list_response, success_response
@@ -27,36 +32,6 @@ from src.presentation.response_envelope import list_response, success_response
 logger = structlog.get_logger()
 router = APIRouter(prefix="/profiles", tags=["profiles"])
 bearer = HTTPBearer()
-
-
-# ── Request models ─────────────────────────────────────────────────────────────
-
-
-class UpdateContactRequest(BaseModel):
-    phone: str | None = None
-    street: str | None = None
-    city: str | None = None
-    state: str | None = None
-    postal_code: str | None = None
-    country: str | None = None
-
-
-class UpdatePersonalRequest(BaseModel):
-    full_name: str | None = None
-    date_of_birth: str | None = None
-
-
-class UpdatePreferencesRequest(BaseModel):
-    notification_preferences_email: bool | None = None
-    notification_preferences_sms: bool | None = None
-    notification_preferences_whatsapp: bool | None = None
-    language: str | None = None
-    timezone: str | None = None
-
-
-class UpdateDisplayRequest(BaseModel):
-    bio: str | None = None
-    display_name: str | None = None
 
 
 # ── Dependency stubs ───────────────────────────────────────────────────────────
@@ -88,35 +63,6 @@ def _extract_claims(
         ) from e
 
 
-def _profile_dict(p: UserProfile) -> dict[str, Any]:
-    return {
-        "user_id": str(p.user_id),
-        "email": p.email,
-        "full_name": p.full_name,
-        "phone": p.phone,
-        "date_of_birth": p.date_of_birth,
-        "address": {
-            "street": p.address.street,
-            "city": p.address.city,
-            "state": p.address.state,
-            "postal_code": p.address.postal_code,
-            "country": p.address.country,
-        },
-        "email_verified": p.email_verified,
-        "avatar_url": p.avatar_url,
-        "bio": p.bio,
-        "display_name": p.display_name,
-        "language": p.language,
-        "timezone": p.timezone,
-        "notification_preferences": {
-            "email": p.notification_preferences.email,
-            "sms": p.notification_preferences.sms,
-            "whatsapp": p.notification_preferences.whatsapp,
-        },
-        "deleted_at": p.deleted_at.isoformat() if p.deleted_at is not None else None,
-    }
-
-
 # ── Endpoints ──────────────────────────────────────────────────────────────────
 
 
@@ -132,7 +78,8 @@ async def get_my_profile(
     profile = await profile_service.get_profile(
         GetProfileQuery(user_id=user_id, requester_id=str(user_id))
     )
-    return success_response(data=_profile_dict(profile), request_id=request_id)
+    data = ProfileResponse.from_domain(profile).model_dump()
+    return success_response(data=data, request_id=request_id)
 
 
 @router.get("/")
@@ -165,7 +112,7 @@ async def list_profiles(
         )
     )
     return list_response(
-        data=[_profile_dict(p) for p in profiles],
+        data=[ProfileResponse.from_domain(p).model_dump() for p in profiles],
         total=total,
         page=page,
         page_size=page_size,
@@ -188,7 +135,8 @@ async def get_profile(
     profile = await profile_service.get_profile(
         GetProfileQuery(user_id=user_id, requester_id=requester_id, is_admin=is_admin)
     )
-    return success_response(data=_profile_dict(profile), request_id=request_id)
+    data = ProfileResponse.from_domain(profile).model_dump()
+    return success_response(data=data, request_id=request_id)
 
 
 @router.patch("/{user_id}/contact")
@@ -217,7 +165,8 @@ async def update_contact(
             country=body.country,
         )
     )
-    return success_response(data=_profile_dict(profile), request_id=request_id)
+    data = ProfileResponse.from_domain(profile).model_dump()
+    return success_response(data=data, request_id=request_id)
 
 
 @router.patch("/{user_id}/personal")
@@ -239,7 +188,8 @@ async def update_personal(
             date_of_birth=body.date_of_birth,
         )
     )
-    return success_response(data=_profile_dict(profile), request_id=request_id)
+    data = ProfileResponse.from_domain(profile).model_dump()
+    return success_response(data=data, request_id=request_id)
 
 
 @router.post("/{user_id}/avatar")
@@ -265,7 +215,8 @@ async def upload_avatar(
             content_type=file.content_type or "",
         )
     )
-    return success_response(data=_profile_dict(profile), request_id=request_id)
+    data = ProfileResponse.from_domain(profile).model_dump()
+    return success_response(data=data, request_id=request_id)
 
 
 @router.delete("/{user_id}/avatar", status_code=status.HTTP_204_NO_CONTENT)
@@ -314,7 +265,8 @@ async def update_preferences(
             timezone=body.timezone,
         )
     )
-    return success_response(data=_profile_dict(profile), request_id=request_id)
+    data = ProfileResponse.from_domain(profile).model_dump()
+    return success_response(data=data, request_id=request_id)
 
 
 @router.patch("/{user_id}/display")
@@ -339,7 +291,8 @@ async def update_display(
             display_name=body.display_name,
         )
     )
-    return success_response(data=_profile_dict(profile), request_id=request_id)
+    data = ProfileResponse.from_domain(profile).model_dump()
+    return success_response(data=data, request_id=request_id)
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)

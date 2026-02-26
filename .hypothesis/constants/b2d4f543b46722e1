@@ -1,4 +1,0 @@
-# file: /home/srinclan/Projects/Community/AWS/AWSUserGroupCbba/GitHub/ugsys-user-profile-service/src/presentation/api/v1/profiles.py
-# hypothesis_version: 6.151.9
-
-['/', '/me', '/profiles', '/{user_id}', '/{user_id}/avatar', '/{user_id}/contact', '/{user_id}/display', '/{user_id}/personal', 'Access denied', 'Bearer', 'WWW-Authenticate', 'address', 'admin', 'avatar_url', 'bio', 'city', 'country', 'date_of_birth', 'deleted_at', 'display_name', 'email', 'email_verified', 'full_name', 'language', 'phone', 'postal_code', 'profiles', 'roles', 'sms', 'state', 'street', 'sub', 'super_admin', 'timezone', 'user_id', 'whatsapp']

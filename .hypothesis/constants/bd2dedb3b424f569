@@ -1,4 +1,0 @@
-# file: /home/srinclan/Projects/Community/AWS/AWSUserGroupCbba/GitHub/ugsys-user-profile-service/src/presentation/response_envelope.py
-# hypothesis_version: 6.151.9
-
-['data', 'meta', 'page', 'page_size', 'request_id', 'total', 'total_pages']
