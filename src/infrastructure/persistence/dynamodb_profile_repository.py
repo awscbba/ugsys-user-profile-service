@@ -1,7 +1,7 @@
 """DynamoDB adapter implementing ProfileRepository port — aioboto3 async I/O."""
 
 from datetime import datetime
-from typing import Any
+from typing import Any, NoReturn
 from uuid import UUID
 
 import aioboto3
@@ -298,7 +298,7 @@ class DynamoDBProfileRepository(ProfileRepository):
 
     # ── Error handling ────────────────────────────────────────────────────────
 
-    def _raise_repository_error(self, operation: str, e: ClientError) -> None:
+    def _raise_repository_error(self, operation: str, e: ClientError) -> NoReturn:
         """Log full ClientError internally, raise safe RepositoryError to callers."""
         logger.error(
             "dynamodb.error",
