@@ -52,6 +52,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     async def dispatch(
         self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
+        # Pass OPTIONS preflight requests straight through — rate limiting them
+        # causes the CORS allow_credentials header to be dropped, resulting in
+        # a preflight failure ("does not have HTTP ok status").
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
         key = self._extract_key(request)
         now = time.time()
 
