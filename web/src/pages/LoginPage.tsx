@@ -69,14 +69,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Header */}
         <div className="text-center mb-8">
           <p className="text-sm font-medium text-brand uppercase tracking-wide">
             AWS User Group Cochabamba
           </p>
-          <h1 className="mt-2 text-2xl font-bold text-gray-900">Iniciar sesión</h1>
+          <h1 className="mt-2 text-2xl font-bold text-white">Iniciar sesión</h1>
         </div>
 
         {/* Card */}
