@@ -1,12 +1,21 @@
+import React from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { useStore } from '@nanostores/react';
 import { Navbar, Footer, UserMenu } from '@ugsys/ui-lib';
-import type { LinkItem, RenderLink } from '@ugsys/ui-lib';
+import type { LinkItem } from '@ugsys/ui-lib';
 import { $user, logout } from '../../stores/authStore';
 import AuthGate from './AuthGate';
 import { ToastContainer } from '../ui/Toast';
 
-const renderLink: RenderLink = (props) => (
+const renderLink = (props: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
+  role?: string;
+  tabIndex?: number;
+  'aria-current'?: 'page' | undefined;
+}) => (
   <NavLink
     to={props.href}
     className={props.className}
