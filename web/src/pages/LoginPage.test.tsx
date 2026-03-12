@@ -56,9 +56,9 @@ describe('LoginPage', () => {
     expect(screen.getByRole('button', { name: /iniciar sesión/i })).toBeInTheDocument();
   });
 
-  it('submit button is disabled when fields are empty', () => {
+  it('submit button is enabled when fields are empty (only disabled while loading)', () => {
     renderLoginPage();
-    expect(screen.getByRole('button', { name: /iniciar sesión/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /iniciar sesión/i })).not.toBeDisabled();
   });
 
   it('submit button is enabled when both fields have values', () => {

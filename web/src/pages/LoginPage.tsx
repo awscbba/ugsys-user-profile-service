@@ -1,11 +1,11 @@
 /**
- * LoginPage — renders a login form that calls POST /api/v1/auth/login on the
- * identity-manager. On success, stores the access token and redirects to the
- * `redirect` query param (same origin only) or to `/`.
+ * LoginPage — delegates all rendering to LoginCard from @ugsys/ui-lib.
+ * Only owns: auth logic, redirect handling, state.
  */
 
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { LoginCard } from '@ugsys/ui-lib';
 import { authService } from '../services/authService';
 import { setAccessToken, $user } from '../stores/authStore';
 
@@ -25,7 +25,6 @@ function extractUser(token: string): { sub: string; email: string; roles: string
   }
 }
 
-/** Ensure redirect target is same-origin to prevent open redirect. */
 function safeRedirect(raw: string | null): string {
   if (!raw) return '/';
   try {
@@ -69,77 +68,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <p className="text-sm font-medium text-brand uppercase tracking-wide">
-            AWS User Group Cochabamba
-          </p>
-          <h1 className="mt-2 text-2xl font-bold text-white">Iniciar sesión</h1>
-        </div>
-
-        {/* Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-          <form onSubmit={handleSubmit} noValidate aria-label="Formulario de inicio de sesión">
-            {/* Error banner */}
-            {error && (
-              <div
-                role="alert"
-                className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
-              >
-                {error}
-              </div>
-            )}
-
-            {/* Email */}
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Correo electrónico
-              </label>
-              <input
-                ref={emailRef}
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand disabled:bg-gray-50 disabled:text-gray-400"
-                placeholder="tu@correo.com"
-              />
-            </div>
-
-            {/* Password */}
-            <div className="mb-6">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña
-              </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand disabled:bg-gray-50 disabled:text-gray-400"
-                placeholder="••••••••"
-              />
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isLoading || !email || !password}
-              className="w-full rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-primary shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-            >
-              {isLoading ? 'Iniciando sesión…' : 'Iniciar sesión'}
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
+    <LoginCard
+      title="Mi Perfil"
+      emailLabel="Correo electrónico"
+      passwordLabel="Contraseña"
+      submitLabel="Iniciar sesión"
+      loadingLabel="Iniciando sesión…"
+      email={email}
+      password={password}
+      isLoading={isLoading}
+      error={error}
+      onEmailChange={setEmail}
+      onPasswordChange={setPassword}
+      onSubmit={handleSubmit}
+    />
   );
 }
