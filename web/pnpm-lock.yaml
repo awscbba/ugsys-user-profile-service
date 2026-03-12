@@ -12,8 +12,8 @@ importers:
         specifier: ^0.8.0
         version: 0.8.4(nanostores@0.11.4)(react@19.2.4)
       '@ugsys/ui-lib':
-        specifier: github:awscbba/ugsys-ui-lib#v0.1.4
-        version: https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/4d4a042217d29ce51e2f504a969aa2f4a7a53d0c(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@4.2.1)
+        specifier: github:awscbba/ugsys-ui-lib#v0.1.5
+        version: https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/2d64314a79fb3cb3fd34afa96c922a8d089a474a(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@4.2.1)
       nanostores:
         specifier: ^0.11.0
         version: 0.11.4
@@ -965,9 +965,9 @@ packages:
     resolution: {integrity: sha512-zm6xx8UT/Xy2oSr2ZXD0pZo7Jx2XsCoID2IUh9YSTFRu7z+WdwYTRk6LhUftm1crwqbuoF6I8zAFeCMw0YjwDg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@ugsys/ui-lib@https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/4d4a042217d29ce51e2f504a969aa2f4a7a53d0c':
-    resolution: {tarball: https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/4d4a042217d29ce51e2f504a969aa2f4a7a53d0c}
-    version: 0.1.4
+  '@ugsys/ui-lib@https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/2d64314a79fb3cb3fd34afa96c922a8d089a474a':
+    resolution: {tarball: https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/2d64314a79fb3cb3fd34afa96c922a8d089a474a}
+    version: 0.1.5
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -3291,7 +3291,7 @@ snapshots:
       '@typescript-eslint/types': 8.57.0
       eslint-visitor-keys: 5.0.1
 
-  '@ugsys/ui-lib@https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/4d4a042217d29ce51e2f504a969aa2f4a7a53d0c(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@4.2.1)':
+  '@ugsys/ui-lib@https://codeload.github.com/awscbba/ugsys-ui-lib/tar.gz/2d64314a79fb3cb3fd34afa96c922a8d089a474a(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(tailwindcss@4.2.1)':
     dependencies:
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
