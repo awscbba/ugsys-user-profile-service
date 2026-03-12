@@ -1,9 +1,11 @@
 """Composition root — wires all dependencies and starts the FastAPI app."""
 
+import json
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 import aioboto3
+import boto3
 import structlog
 from fastapi import FastAPI
 from mangum import Mangum
@@ -27,6 +29,23 @@ from src.presentation.middleware.security_headers import SecurityHeadersMiddlewa
 
 configure_logging(settings.service_name, settings.log_level)
 logger = structlog.get_logger()
+
+
+def _resolve_jwt_public_key() -> tuple[str, str]:
+    """Return (public_key_pem, key_id) — from env vars or Secrets Manager."""
+    if settings.jwt_public_key:
+        return settings.jwt_public_key, settings.jwt_key_id
+
+    if settings.jwt_keys_secret_arn:
+        client = boto3.client("secretsmanager", region_name=settings.aws_region)
+        response = client.get_secret_value(SecretId=settings.jwt_keys_secret_arn)
+        parsed: dict[str, str] = json.loads(response.get("SecretString", "{}"))
+        return parsed["public_key"], parsed.get("key_id", "ugsys-v1")
+
+    raise RuntimeError(
+        "JWT public key not configured. "
+        "Set JWT_KEYS_SECRET_ARN (prod) or JWT_PUBLIC_KEY + JWT_KEY_ID (dev/CI)."
+    )
 
 
 @asynccontextmanager
@@ -83,8 +102,20 @@ def create_app() -> FastAPI:
         avatar_storage=_avatar_storage,
     )
 
+    # Wire JWT token service (verify-only — public key only, no signing)
+    from src.infrastructure.adapters.jwt_token_service import JWTTokenService
+
+    _public_key, _key_id = _resolve_jwt_public_key()
+    _token_service = JWTTokenService(
+        private_key="",  # not needed — this service only verifies, never signs
+        public_key=_public_key,
+        key_id=_key_id,
+        audience=settings.jwt_audience,
+    )
+
     # Inject into routers
     app.dependency_overrides[profiles.get_profile_service] = lambda: _profile_service
+    app.dependency_overrides[profiles.get_token_service] = lambda: _token_service
 
     # Routers
     app.include_router(health.router)
