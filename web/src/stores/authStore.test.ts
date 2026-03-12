@@ -63,11 +63,12 @@ describe('initializeAuth — 200 path', () => {
 });
 
 describe('initializeAuth — non-200 path', () => {
-  it('redirects to login and keeps $user null on 401', async () => {
+  it('keeps $user null and does NOT redirect on refresh failure', async () => {
     vi.mocked(authService.refresh).mockRejectedValue(new Error('Token refresh failed'));
     await initializeAuth();
     expect($user.get()).toBeNull();
-    expect(window.location.href).toContain('login');
+    // No redirect — AuthGate handles navigation to /login via React Router
+    expect(window.location.href).toBe('');
     expect($isInitializing.get()).toBe(false);
   });
 });
@@ -96,9 +97,9 @@ describe('$isAuthenticated computed', () => {
   });
 });
 
-// Feature: profile-frontend, Property 1: Non-200 Refresh Redirects to Login
-describe('Property 1: Non-200 Refresh Redirects to Login', () => {
-  it('redirects to login and keeps $user null for any non-200 status', async () => {
+// Feature: profile-frontend, Property 1: Non-200 Refresh Leaves $user Null
+describe('Property 1: Non-200 Refresh Leaves $user Null', () => {
+  it('keeps $user null for any non-200 status (AuthGate handles redirect)', async () => {
     await fc.assert(
       fc.asyncProperty(
         fc.integer({ min: 201, max: 599 }).filter((s) => s !== 200),
@@ -112,7 +113,8 @@ describe('Property 1: Non-200 Refresh Redirects to Login', () => {
           await initializeAuth();
 
           expect($user.get()).toBeNull();
-          expect(window.location.href).toContain('login');
+          // No redirect from initializeAuth — AuthGate navigates to /login via React Router
+          expect(window.location.href).toBe('');
         }
       ),
       { numRuns: 100 }
