@@ -15,7 +15,9 @@ _SECURITY_HEADERS = {
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=()",
     "Cross-Origin-Opener-Policy": "same-origin",
-    "Cross-Origin-Resource-Policy": "same-origin",
+    # cross-origin allows the frontend SPA (different origin) to read API responses.
+    # same-origin would block all cross-origin reads, breaking the SPA.
+    "Cross-Origin-Resource-Policy": "cross-origin",
 }
 
 
@@ -24,6 +26,11 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         self, request: Request, call_next: Callable[[Request], Awaitable[Response]]
     ) -> Response:
         response = await call_next(request)
+        # Do not inject security headers on CORS preflight responses — headers like
+        # Cross-Origin-Resource-Policy: same-origin would override the CORS policy
+        # and cause the browser to reject the preflight.
+        if request.method == "OPTIONS":
+            return response
         for header, value in _SECURITY_HEADERS.items():
             response.headers[header] = value
         # Remove server header — prevents technology fingerprinting
