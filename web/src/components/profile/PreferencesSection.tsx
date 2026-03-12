@@ -26,19 +26,22 @@ const TIMEZONES = [
 
 export default function PreferencesSection() {
   const profile = useStore($profile);
-  if (!profile) return null;
 
   const currentValue: UpdatePreferencesRequest = {
-    notification_preferences: { ...profile.notification_preferences },
-    language: profile.language,
-    timezone: profile.timezone,
+    notification_preferences: profile?.notification_preferences
+      ? { ...profile.notification_preferences }
+      : { email: false, sms: false, whatsapp: false },
+    language: profile?.language ?? 'es',
+    timezone: profile?.timezone ?? 'America/La_Paz',
   };
 
   const { isEditing, isSaving, draft, setDraft, startEdit, cancelEdit, submitEdit } =
     useEditSection<UpdatePreferencesRequest>({
       currentValue,
-      onSave: (value) => profileService.updatePreferences(profile.user_id, value),
+      onSave: (value) => profileService.updatePreferences(profile!.user_id, value),
     });
+
+  if (!profile) return null;
 
   return (
     <section className="bg-white rounded-lg shadow p-6">

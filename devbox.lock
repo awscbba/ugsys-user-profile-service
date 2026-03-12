@@ -317,6 +317,103 @@
         }
       }
     },
+    "nodejs@latest": {
+      "last_modified": "2026-03-04T00:49:39Z",
+      "plugin_version": "0.0.2",
+      "resolved": "github:NixOS/nixpkgs/0fd2db475afdde93c9e4b1625aafb8eb41b99807#nodejs_25",
+      "source": "devbox-search",
+      "version": "25.8.0",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/dx0ak4wpn91a5ps032xlgzjblz2arynh-nodejs-25.8.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/dx0ak4wpn91a5ps032xlgzjblz2arynh-nodejs-25.8.0"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/ab3p2f0hz6hn0ksrcg2sxd3hff9qba6q-nodejs-25.8.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/ab3p2f0hz6hn0ksrcg2sxd3hff9qba6q-nodejs-25.8.0"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/szjxi7dmi65hijd87kwcdgbjmvx6kki6-nodejs-25.8.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/szjxi7dmi65hijd87kwcdgbjmvx6kki6-nodejs-25.8.0"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/75b4bawmhdmr18w6fpvgcxzcp5vjgwkf-nodejs-25.8.0",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/75b4bawmhdmr18w6fpvgcxzcp5vjgwkf-nodejs-25.8.0"
+        }
+      }
+    },
+    "pnpm@latest": {
+      "last_modified": "2026-03-05T01:30:23Z",
+      "resolved": "github:NixOS/nixpkgs/66d9241e3dc2296726dc522e62dbfe89c7b449f3#pnpm",
+      "source": "devbox-search",
+      "version": "10.29.2",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/zhi5rp16mv20ixbk1wzxk694k9kd4ywl-pnpm-10.29.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/zhi5rp16mv20ixbk1wzxk694k9kd4ywl-pnpm-10.29.2"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/v829b24rpcl97zh767bfifx9ggvnvg5j-pnpm-10.29.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/v829b24rpcl97zh767bfifx9ggvnvg5j-pnpm-10.29.2"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/ks9l9hj8xrfr62afzl1lgcxbl9106zlp-pnpm-10.29.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/ks9l9hj8xrfr62afzl1lgcxbl9106zlp-pnpm-10.29.2"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/hzfx2jjklyfa3lyrwa0n9h037dnsf1i7-pnpm-10.29.2",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/hzfx2jjklyfa3lyrwa0n9h037dnsf1i7-pnpm-10.29.2"
+        }
+      }
+    },
     "python@latest": {
       "last_modified": "2026-01-23T17:20:52Z",
       "plugin_version": "0.0.4",

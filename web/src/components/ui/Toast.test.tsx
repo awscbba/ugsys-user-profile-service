@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import * as fc from 'fast-check';
 import { ToastContainer } from './Toast';
-import { $toasts, addToast, dismissToast } from '../../utils/toast';
+import { $toasts, addToast } from '../../utils/toast';
 
 beforeEach(() => {
   $toasts.set([]);
@@ -47,7 +47,7 @@ describe('ToastContainer', () => {
 describe('Property 10: Toast Safety', () => {
   it('toast message never contains HTTP status codes or stack trace markers', () => {
     fc.assert(
-      fc.property(fc.integer({ min: 400, max: 599 }), (status) => {
+      fc.property(fc.integer({ min: 400, max: 599 }), (_status) => {
         $toasts.set([]);
         // Simulate what httpClient does — extracts user_message, falls back to generic
         const safeMessage = 'No se pudo completar la solicitud';

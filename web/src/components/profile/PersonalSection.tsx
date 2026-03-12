@@ -6,11 +6,10 @@ import type { UpdatePersonalRequest } from '../../types/profile';
 
 export default function PersonalSection() {
   const profile = useStore($profile);
-  if (!profile) return null;
 
   const currentValue: UpdatePersonalRequest = {
-    full_name: profile.full_name,
-    date_of_birth: profile.date_of_birth,
+    full_name: profile?.full_name ?? '',
+    date_of_birth: profile?.date_of_birth ?? '',
   };
 
   const {
@@ -24,9 +23,11 @@ export default function PersonalSection() {
     validationError,
   } = useEditSection<UpdatePersonalRequest>({
     currentValue,
-    onSave: (value) => profileService.updatePersonal(profile.user_id, value),
+    onSave: (value) => profileService.updatePersonal(profile!.user_id, value),
     validate: (v) => (v.full_name.trim().length === 0 ? 'El nombre no puede estar vacío' : null),
   });
+
+  if (!profile) return null;
 
   return (
     <section className="bg-white rounded-lg shadow p-6">

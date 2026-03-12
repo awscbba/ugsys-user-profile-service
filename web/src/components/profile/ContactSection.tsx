@@ -6,18 +6,21 @@ import type { UpdateContactRequest } from '../../types/profile';
 
 export default function ContactSection() {
   const profile = useStore($profile);
-  if (!profile) return null;
 
   const currentValue: UpdateContactRequest = {
-    phone: profile.phone,
-    address: { ...profile.address },
+    phone: profile?.phone ?? '',
+    address: profile?.address
+      ? { ...profile.address }
+      : { street: '', city: '', state: '', postal_code: '', country: '' },
   };
 
   const { isEditing, isSaving, draft, setDraft, startEdit, cancelEdit, submitEdit } =
     useEditSection<UpdateContactRequest>({
       currentValue,
-      onSave: (value) => profileService.updateContact(profile.user_id, value),
+      onSave: (value) => profileService.updateContact(profile!.user_id, value),
     });
+
+  if (!profile) return null;
 
   return (
     <section className="bg-white rounded-lg shadow p-6">

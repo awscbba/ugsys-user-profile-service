@@ -91,7 +91,7 @@ describe('PersonalSection — edit mode', () => {
 
   it('form onSubmit calls submitEdit', async () => {
     const { profileService } = await import('../../services/profileService');
-    vi.mocked(profileService.updatePersonal).mockResolvedValue({} as any);
+    vi.mocked(profileService.updatePersonal).mockResolvedValue({} as ProfileResponse);
     render(<PersonalSection />);
     fireEvent.click(screen.getByRole('button', { name: /editar/i }));
     const form = screen.getByLabelText(/nombre completo/i).closest('form')!;

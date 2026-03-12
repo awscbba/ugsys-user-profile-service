@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/re
 import * as fc from 'fast-check';
 import AvatarUploader from './AvatarUploader';
 import { $profile } from '../../stores/profileStore';
-import { $toasts, addToast } from '../../utils/toast';
+import { addToast } from '../../utils/toast';
 import type { ProfileResponse } from '../../types/profile';
 
 vi.mock('../../services/profileService', () => ({
