@@ -13,7 +13,7 @@ import { authService } from './authService';
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 const TIMEOUT_MS = 15_000;
 
-const LOGIN_URL = `${import.meta.env.VITE_AUTH_API_URL ?? 'https://auth.apps.cloud.org.bo'}/login?redirect=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : 'https://profile.apps.cloud.org.bo')}`;
+const LOGIN_URL = '/login';
 
 function redirectToLogin(): void {
   clearAccessToken();

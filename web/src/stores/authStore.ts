@@ -24,7 +24,11 @@ export const $isAuthenticated = computed($user, (u) => u !== null);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const LOGIN_URL = `${import.meta.env.VITE_AUTH_API_URL ?? 'https://auth.apps.cloud.org.bo'}/login?redirect=${encodeURIComponent(typeof window !== 'undefined' ? window.location.origin : 'https://profile.apps.cloud.org.bo')}`;
+function buildLoginUrl(): string {
+  if (typeof window === 'undefined') return '/login';
+  const redirect = encodeURIComponent(window.location.href);
+  return `/login?redirect=${redirect}`;
+}
 
 function decodeJwtPayload(token: string): Record<string, unknown> {
   const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
@@ -51,7 +55,7 @@ function extractUser(token: string): AuthUser | null {
 /**
  * Called once in main.tsx before rendering.
  * On 200 → stores access token + sets $user.
- * On non-200 → redirects to Identity Manager login URL.
+ * On non-200 → sets $user to null; AuthGate handles the /login redirect.
  */
 export async function initializeAuth(): Promise<void> {
   $isInitializing.set(true);
@@ -60,9 +64,8 @@ export async function initializeAuth(): Promise<void> {
     setAccessToken(data.access_token);
     $user.set(extractUser(data.access_token));
   } catch {
-    // non-200 or network error → redirect to login
+    // Refresh failed — leave $user as null; AuthGate will navigate to /login
     $user.set(null);
-    window.location.href = LOGIN_URL;
   } finally {
     $isInitializing.set(false);
   }
@@ -73,5 +76,5 @@ export async function logout(): Promise<void> {
   clearAccessToken();
   $user.set(null);
   await authService.logout();
-  window.location.href = LOGIN_URL;
+  window.location.href = buildLoginUrl();
 }

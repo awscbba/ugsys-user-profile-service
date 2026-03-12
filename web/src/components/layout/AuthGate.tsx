@@ -1,3 +1,4 @@
+import { Navigate, useLocation } from 'react-router-dom';
 import { useStore } from '@nanostores/react';
 import { $isInitializing, $isAuthenticated } from '../../stores/authStore';
 
@@ -8,6 +9,7 @@ interface AuthGateProps {
 export default function AuthGate({ children }: AuthGateProps) {
   const isInitializing = useStore($isInitializing);
   const isAuthenticated = useStore($isAuthenticated);
+  const location = useLocation();
 
   if (isInitializing) {
     return (
@@ -21,9 +23,9 @@ export default function AuthGate({ children }: AuthGateProps) {
     );
   }
 
-  // Safety net — redirect is already handled inside initializeAuth()
   if (!isAuthenticated) {
-    return null;
+    const redirect = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/login?redirect=${redirect}`} replace />;
   }
 
   return <>{children}</>;
