@@ -1,12 +1,12 @@
 import { Outlet, NavLink } from 'react-router-dom';
 import { useStore } from '@nanostores/react';
-import { Footer, UserMenu } from '@ugsys/ui-lib';
-import type { LinkItem } from '@ugsys/ui-lib';
+import { Navbar, Footer, UserMenu } from '@ugsys/ui-lib';
+import type { LinkItem, RenderLink } from '@ugsys/ui-lib';
 import { $user, logout } from '../../stores/authStore';
 import AuthGate from './AuthGate';
 import { ToastContainer } from '../ui/Toast';
 
-const renderLink = ({
+const renderLink: RenderLink = ({
   href,
   children,
   className,
@@ -14,14 +14,6 @@ const renderLink = ({
   role,
   tabIndex,
   'aria-current': ariaCurrent,
-}: {
-  href: string;
-  children: React.ReactNode;
-  className?: string;
-  onClick?: React.MouseEventHandler;
-  role?: string;
-  tabIndex?: number;
-  'aria-current'?: React.AriaAttributes['aria-current'];
 }) => (
   <NavLink
     to={href}
@@ -46,38 +38,27 @@ export default function Layout() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header
-        className="sticky top-0 z-50"
-        style={{
-          backgroundColor: '#1e2738',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex-shrink-0">
-              <span className="text-white font-bold text-base leading-tight">
-                AWS User Group Cochabamba
-              </span>
-              <span className="block text-[#FF9900] text-xs font-medium">Mi Perfil</span>
-            </div>
-            {user && (
-              <UserMenu
-                user={{
-                  name: user.email,
-                  email: user.email,
-                  roles: user.roles,
-                  avatarUrl: undefined,
-                }}
-                onLogout={logout}
-                adminPanelUrl="https://admin.apps.cloud.org.bo"
-                profileHref="https://profile.apps.cloud.org.bo"
-                renderLink={renderLink}
-              />
-            )}
-          </div>
-        </div>
-      </header>
+      <Navbar
+        links={[]}
+        brandSubtitle="Mi Perfil"
+        renderLink={renderLink}
+        userMenuSlot={
+          user ? (
+            <UserMenu
+              user={{
+                name: user.email,
+                email: user.email,
+                roles: user.roles,
+                avatarUrl: undefined,
+              }}
+              onLogout={logout}
+              adminPanelUrl="https://admin.apps.cloud.org.bo"
+              profileHref="https://profile.apps.cloud.org.bo"
+              renderLink={renderLink}
+            />
+          ) : undefined
+        }
+      />
 
       <main className="flex-1">
         <AuthGate>
