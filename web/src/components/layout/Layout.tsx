@@ -6,24 +6,16 @@ import { $user, logout } from '../../stores/authStore';
 import AuthGate from './AuthGate';
 import { ToastContainer } from '../ui/Toast';
 
-const renderLink: RenderLink = ({
-  href,
-  children,
-  className,
-  onClick,
-  role,
-  tabIndex,
-  'aria-current': ariaCurrent,
-}) => (
+const renderLink: RenderLink = (props) => (
   <NavLink
-    to={href}
-    className={className}
-    onClick={onClick}
-    role={role}
-    tabIndex={tabIndex}
-    aria-current={ariaCurrent}
+    to={props.href}
+    className={props.className}
+    onClick={props.onClick}
+    role={props.role}
+    tabIndex={props.tabIndex}
+    aria-current={props['aria-current']}
   >
-    {children}
+    {props.children}
   </NavLink>
 );
 
