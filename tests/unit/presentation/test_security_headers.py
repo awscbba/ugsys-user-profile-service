@@ -190,7 +190,26 @@ class TestSecurityHeadersFixed:
         assert h.get("referrer-policy") == "strict-origin-when-cross-origin"
         assert "camera=()" in h.get("permissions-policy", "")
         assert h.get("cross-origin-opener-policy") == "same-origin"
-        assert h.get("cross-origin-resource-policy") == "same-origin"
+        # cross-origin allows the SPA (different origin) to read API responses
+        assert h.get("cross-origin-resource-policy") == "cross-origin"
+
+    def test_3_1_5_options_preflight_skips_security_headers(self):
+        """3.1.5 Assert OPTIONS requests are passed through without security headers.
+
+        Cross-Origin-Resource-Policy: same-origin on a preflight response would
+        cause browsers to reject it with a CORS error.
+        """
+        app = FastAPI()
+        app.add_middleware(SecurityHeadersMiddleware)
+
+        @app.options("/api/v1/profiles/me")
+        async def options_ep() -> dict:
+            return {}
+
+        client = TestClient(app)
+        response = client.options("/api/v1/profiles/me")
+        assert "cross-origin-resource-policy" not in response.headers
+        assert "x-frame-options" not in response.headers
 
     def test_3_1_2_server_header_absent(self):
         """3.1.2 Assert server header absent from responses."""
