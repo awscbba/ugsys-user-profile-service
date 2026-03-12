@@ -69,77 +69,59 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <p className="text-sm font-medium text-brand uppercase tracking-wide">
-            AWS User Group Cochabamba
+    <div className="flex items-center justify-center min-h-screen bg-primary font-sans">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        aria-label="Formulario de inicio de sesión"
+        className="flex flex-col gap-4 p-10 bg-white rounded-xl shadow-lg w-[360px]"
+      >
+        <h1 className="m-0 text-[22px] font-bold text-gray-900">Mi Perfil</h1>
+
+        {/* Error banner */}
+        {error && (
+          <p role="alert" className="m-0 text-[13px] text-red-600">
+            {error}
           </p>
-          <h1 className="mt-2 text-2xl font-bold text-white">Iniciar sesión</h1>
-        </div>
+        )}
 
-        {/* Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-          <form onSubmit={handleSubmit} noValidate aria-label="Formulario de inicio de sesión">
-            {/* Error banner */}
-            {error && (
-              <div
-                role="alert"
-                className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
-              >
-                {error}
-              </div>
-            )}
+        <label className="flex flex-col gap-1 text-sm text-gray-700">
+          Correo electrónico
+          <input
+            ref={emailRef}
+            id="email"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isLoading}
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-accent disabled:bg-gray-50 disabled:text-gray-400"
+          />
+        </label>
 
-            {/* Email */}
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Correo electrónico
-              </label>
-              <input
-                ref={emailRef}
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={isLoading}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand disabled:bg-gray-50 disabled:text-gray-400"
-                placeholder="tu@correo.com"
-              />
-            </div>
+        <label className="flex flex-col gap-1 text-sm text-gray-700">
+          Contraseña
+          <input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={isLoading}
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-accent disabled:bg-gray-50 disabled:text-gray-400"
+          />
+        </label>
 
-            {/* Password */}
-            <div className="mb-6">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña
-              </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand disabled:bg-gray-50 disabled:text-gray-400"
-                placeholder="••••••••"
-              />
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isLoading || !email || !password}
-              className="w-full rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-primary shadow-sm hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-            >
-              {isLoading ? 'Iniciando sesión…' : 'Iniciar sesión'}
-            </button>
-          </form>
-        </div>
-      </div>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="py-2.5 bg-brand hover:bg-brand/90 text-primary border-none rounded-md text-sm font-semibold cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
+        >
+          {isLoading ? 'Iniciando sesión…' : 'Iniciar sesión'}
+        </button>
+      </form>
     </div>
   );
 }
