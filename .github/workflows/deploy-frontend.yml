@@ -1,0 +1,90 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "web/**"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: web
+
+jobs:
+  deploy:
+    name: Build & Deploy to S3 + CloudFront
+    runs-on: ubuntu-latest
+    environment: prod
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        env:
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
+          VITE_AUTH_API_URL: ${{ secrets.VITE_AUTH_API_URL }}
+        run: pnpm run build
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Sync dist/ to S3
+        run: |
+          # Hashed assets — long-lived immutable cache (1 year)
+          aws s3 sync dist/assets/ s3://${{ secrets.FRONTEND_BUCKET_NAME }}/assets/ \
+            --cache-control "public, max-age=31536000, immutable" \
+            --delete
+
+          # Everything else (HTML, manifest) — no cache
+          aws s3 sync dist/ s3://${{ secrets.FRONTEND_BUCKET_NAME }}/ \
+            --exclude "assets/*" \
+            --cache-control "no-store, no-cache, must-revalidate" \
+            --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+      - name: Notify Slack — success
+        if: success()
+        uses: slackapi/slack-github-action@v1
+        with:
+          channel-id: "C0AE6QV0URH"
+          slack-message: |
+            :white_check_mark: *Frontend deployed* to `profile.apps.cloud.org.bo`
+            Commit: `${{ github.sha }}`
+            ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      - name: Notify Slack — failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          channel-id: "C0AE6QV0URH"
+          slack-message: |
+            :x: *Frontend deploy failed* on `${{ github.repository }}`
+            Workflow: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
