@@ -8,11 +8,10 @@ const MAX_BIO = 500;
 
 export default function DisplaySection() {
   const profile = useStore($profile);
-  if (!profile) return null;
 
   const currentValue: UpdateDisplayRequest = {
-    bio: profile.bio,
-    display_name: profile.display_name,
+    bio: profile?.bio ?? null,
+    display_name: profile?.display_name ?? null,
   };
 
   const {
@@ -26,12 +25,14 @@ export default function DisplaySection() {
     validationError,
   } = useEditSection<UpdateDisplayRequest>({
     currentValue,
-    onSave: (value) => profileService.updateDisplay(profile.user_id, value),
+    onSave: (value) => profileService.updateDisplay(profile!.user_id, value),
     validate: (v) =>
       v.bio !== null && v.bio.length > MAX_BIO
         ? `La biografía no puede superar ${MAX_BIO} caracteres`
         : null,
   });
+
+  if (!profile) return null;
 
   const bioLength = draft.bio?.length ?? 0;
   const bioOverLimit = bioLength > MAX_BIO;

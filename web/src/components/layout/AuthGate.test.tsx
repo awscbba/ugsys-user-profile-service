@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import * as fc from 'fast-check';
 import AuthGate from './AuthGate';
-import { $isInitializing, $isAuthenticated } from '../../stores/authStore';
+import { $isInitializing } from '../../stores/authStore';
 
 // $isAuthenticated is a computed — we drive it by setting $user
 import { $user } from '../../stores/authStore';

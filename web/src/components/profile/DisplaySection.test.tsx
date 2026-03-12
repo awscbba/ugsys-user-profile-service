@@ -84,7 +84,7 @@ describe('DisplaySection — counter', () => {
 
   it('form onSubmit calls submitEdit', async () => {
     const { profileService } = await import('../../services/profileService');
-    vi.mocked(profileService.updateDisplay).mockResolvedValue({} as any);
+    vi.mocked(profileService.updateDisplay).mockResolvedValue({} as ProfileResponse);
     render(<DisplaySection />);
     fireEvent.click(screen.getByRole('button', { name: /editar/i }));
     const form = screen.getByTestId('bio-counter').closest('form')!;
