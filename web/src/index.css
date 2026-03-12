@@ -1,8 +1,8 @@
 @import 'tailwindcss';
 @import '@ugsys/ui-lib/tokens.css';
 
-/* Scan ui-lib dist for Tailwind class usage */
-@source '../node_modules/@ugsys/ui-lib/dist';
+/* Scan ui-lib src for Tailwind class usage — src/ is included in the published package */
+@source '../node_modules/@ugsys/ui-lib/src';
 
 /* Mirror design tokens as Tailwind theme values */
 @theme inline {
@@ -16,7 +16,9 @@
 
 @layer base {
   body {
-    background-color: var(--color-background);
+    background-color: #161d2b;
+    color: #f0f4ff;
+    min-height: 100vh;
     font-family: var(--font-sans, system-ui, sans-serif);
     -webkit-font-smoothing: antialiased;
   }
