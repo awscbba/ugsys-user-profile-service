@@ -15,6 +15,9 @@ on:
     paths:
       - "web/**"
 
+permissions:
+  contents: read
+
 defaults:
   run:
     working-directory: web
@@ -68,6 +71,9 @@ jobs:
   test:
     name: Tests + Coverage
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
