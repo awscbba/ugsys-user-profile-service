@@ -1,11 +1,11 @@
 /**
- * LoginPage — renders a login form that calls POST /api/v1/auth/login on the
- * identity-manager. On success, stores the access token and redirects to the
- * `redirect` query param (same origin only) or to `/`.
+ * LoginPage — delegates all rendering to LoginCard from @ugsys/ui-lib.
+ * Only owns: auth logic, redirect handling, state.
  */
 
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { LoginCard } from '@ugsys/ui-lib';
 import { authService } from '../services/authService';
 import { setAccessToken, $user } from '../stores/authStore';
 
@@ -25,7 +25,6 @@ function extractUser(token: string): { sub: string; email: string; roles: string
   }
 }
 
-/** Ensure redirect target is same-origin to prevent open redirect. */
 function safeRedirect(raw: string | null): string {
   if (!raw) return '/';
   try {
@@ -69,59 +68,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-primary font-sans">
-      <form
-        onSubmit={handleSubmit}
-        noValidate
-        aria-label="Formulario de inicio de sesión"
-        className="flex flex-col gap-4 p-10 bg-white rounded-xl shadow-lg w-[360px]"
-      >
-        <h1 className="m-0 text-[22px] font-bold text-gray-900">Mi Perfil</h1>
-
-        {/* Error banner */}
-        {error && (
-          <p role="alert" className="m-0 text-[13px] text-red-600">
-            {error}
-          </p>
-        )}
-
-        <label className="flex flex-col gap-1 text-sm text-gray-700">
-          Correo electrónico
-          <input
-            ref={emailRef}
-            id="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={isLoading}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-accent disabled:bg-gray-50 disabled:text-gray-400"
-          />
-        </label>
-
-        <label className="flex flex-col gap-1 text-sm text-gray-700">
-          Contraseña
-          <input
-            id="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={isLoading}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-accent disabled:bg-gray-50 disabled:text-gray-400"
-          />
-        </label>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="py-2.5 bg-brand hover:bg-brand/90 text-primary border-none rounded-md text-sm font-semibold cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed transition-colors"
-        >
-          {isLoading ? 'Iniciando sesión…' : 'Iniciar sesión'}
-        </button>
-      </form>
-    </div>
+    <LoginCard
+      title="Mi Perfil"
+      emailLabel="Correo electrónico"
+      passwordLabel="Contraseña"
+      submitLabel="Iniciar sesión"
+      loadingLabel="Iniciando sesión…"
+      email={email}
+      password={password}
+      isLoading={isLoading}
+      error={error}
+      onEmailChange={setEmail}
+      onPasswordChange={setPassword}
+      onSubmit={handleSubmit}
+    />
   );
 }
