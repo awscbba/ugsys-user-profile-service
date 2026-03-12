@@ -1,18 +1,42 @@
 #!/usr/bin/env bash
 set -euo pipefail
+RED='\033[0;31m' GREEN='\033[0;32m' YELLOW='\033[1;33m' NC='\033[0m'
+echo "" && echo "🔍 Running pre-push checks..." && echo ""
+FAILED=0
 
-echo ""
-echo "🔍 Running pre-push checks..."
-echo ""
-
-echo "── Unit tests ──"
-if uv run pytest tests/unit/ -q --tb=short; then
-  echo "  ✓ tests passed"
+# ── Python ────────────────────────────────────────────────────────────────────
+echo -e "${YELLOW}── mypy strict ──${NC}"
+if uv run mypy src/ --strict 2>&1; then
+  echo -e "  ${GREEN}✓ mypy${NC}"
 else
-  echo "  ✗ tests failed"
-  exit 1
+  echo -e "  ${RED}✗ mypy failed${NC}"; FAILED=1
+fi
+
+echo -e "${YELLOW}── Unit tests ──${NC}"
+if uv run pytest tests/unit/ -q --tb=short 2>&1; then
+  echo -e "  ${GREEN}✓ tests passed${NC}"
+else
+  echo -e "  ${RED}✗ tests failed${NC}"; FAILED=1
+fi
+
+# ── Frontend (TypeScript) ─────────────────────────────────────────────────────
+if [ -d "web" ]; then
+  echo -e "${YELLOW}── TypeScript typecheck ──${NC}"
+  if (cd web && pnpm run typecheck 2>&1); then
+    echo -e "  ${GREEN}✓ tsc${NC}"
+  else
+    echo -e "  ${RED}✗ tsc failed — run: cd web && pnpm run typecheck${NC}"; FAILED=1
+  fi
+
+  echo -e "${YELLOW}── Vitest coverage (≥80%) ──${NC}"
+  if (cd web && pnpm run test:coverage 2>&1); then
+    echo -e "  ${GREEN}✓ vitest coverage${NC}"
+  else
+    echo -e "  ${RED}✗ vitest coverage failed — run: cd web && pnpm run test:coverage${NC}"; FAILED=1
+  fi
 fi
 
 echo ""
-echo "✓ Pre-push checks passed."
-echo ""
+if [ $FAILED -ne 0 ]; then echo -e "${RED}✗ Pre-push checks failed.${NC}"; exit 1; fi
+echo -e "${GREEN}✓ All pre-push checks passed.${NC}" && echo ""
+exit 0

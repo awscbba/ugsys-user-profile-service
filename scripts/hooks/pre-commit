@@ -7,24 +7,46 @@ if [[ "$BRANCH" == "main" ]]; then
   echo -e "${RED}✗ Direct commits to 'main' are not allowed.${NC}"; exit 1
 fi
 FAILED=0
+
+# ── Python ────────────────────────────────────────────────────────────────────
 echo -e "${YELLOW}── Ruff lint ──${NC}"
 if just lint --quiet 2>&1; then
   echo -e "  ${GREEN}✓ ruff lint${NC}"
 else
   echo -e "  ${RED}✗ ruff lint failed — run: just lint${NC}"; FAILED=1
 fi
+
 echo -e "${YELLOW}── Ruff format ──${NC}"
 if just format-check --quiet 2>&1; then
   echo -e "  ${GREEN}✓ ruff format${NC}"
 else
   echo -e "  ${RED}✗ ruff format failed — run: just format${NC}"; FAILED=1
 fi
+
 echo -e "${YELLOW}── Unit tests ──${NC}"
 if just test-unit 2>&1; then
   echo -e "  ${GREEN}✓ unit tests${NC}"
 else
   echo -e "  ${RED}✗ unit tests failed — run: just test-unit${NC}"; FAILED=1
 fi
+
+# ── Frontend (TypeScript) ─────────────────────────────────────────────────────
+if [ -d "web" ]; then
+  echo -e "${YELLOW}── ESLint ──${NC}"
+  if (cd web && pnpm run lint 2>&1); then
+    echo -e "  ${GREEN}✓ eslint${NC}"
+  else
+    echo -e "  ${RED}✗ eslint failed — run: cd web && pnpm run lint${NC}"; FAILED=1
+  fi
+
+  echo -e "${YELLOW}── Prettier format check ──${NC}"
+  if (cd web && pnpm run format:check 2>&1); then
+    echo -e "  ${GREEN}✓ prettier${NC}"
+  else
+    echo -e "  ${RED}✗ prettier failed — run: cd web && pnpm run format${NC}"; FAILED=1
+  fi
+fi
+
 echo ""
 if [ $FAILED -ne 0 ]; then echo -e "${RED}✗ Pre-commit checks failed.${NC}"; exit 1; fi
 echo -e "${GREEN}✓ All pre-commit checks passed.${NC}" && echo ""
