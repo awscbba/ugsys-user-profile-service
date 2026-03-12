@@ -42,11 +42,7 @@ export default function DisplaySection() {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-900">Información de Presentación</h2>
         {!isEditing && (
-          <button
-            type="button"
-            onClick={startEdit}
-            className="text-sm text-[#FF9900] hover:underline"
-          >
+          <button type="button" onClick={startEdit} className="text-sm text-brand hover:underline">
             Editar
           </button>
         )}
@@ -96,7 +92,7 @@ export default function DisplaySection() {
             <button
               type="submit"
               disabled={isSaving || bioOverLimit}
-              className="px-4 py-2 bg-[#FF9900] text-white rounded text-sm font-medium disabled:opacity-50"
+              className="px-4 py-2 bg-brand text-primary rounded text-sm font-medium disabled:opacity-50"
             >
               {isSaving ? 'Guardando…' : 'Guardar'}
             </button>

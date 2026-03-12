@@ -130,7 +130,7 @@ export default function PreferencesSection() {
             <button
               type="submit"
               disabled={isSaving}
-              className="px-4 py-2 bg-[#FF9900] text-white rounded text-sm font-medium disabled:opacity-50"
+              className="px-4 py-2 bg-brand text-primary rounded text-sm font-medium disabled:opacity-50"
             >
               {isSaving ? 'Guardando…' : 'Guardar'}
             </button>

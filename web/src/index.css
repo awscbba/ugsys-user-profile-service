@@ -1,1 +1,23 @@
 @import 'tailwindcss';
+@import '@ugsys/ui-lib/tokens.css';
+
+/* Scan ui-lib dist for Tailwind class usage */
+@source '../node_modules/@ugsys/ui-lib/dist';
+
+/* Mirror design tokens as Tailwind theme values */
+@theme inline {
+  --color-primary: var(--color-primary);
+  --color-brand: var(--color-brand);
+  --color-accent: var(--color-accent);
+  --color-footer: var(--color-footer);
+  --color-background: var(--color-background);
+  --font-family-sans: var(--font-sans);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    font-family: var(--font-sans, system-ui, sans-serif);
+    -webkit-font-smoothing: antialiased;
+  }
+}

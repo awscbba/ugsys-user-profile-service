@@ -34,11 +34,7 @@ export default function PersonalSection() {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-900">Información Personal</h2>
         {!isEditing && (
-          <button
-            type="button"
-            onClick={startEdit}
-            className="text-sm text-[#FF9900] hover:underline"
-          >
+          <button type="button" onClick={startEdit} className="text-sm text-brand hover:underline">
             Editar
           </button>
         )}
@@ -61,7 +57,7 @@ export default function PersonalSection() {
               type="text"
               value={draft.full_name}
               onChange={(e) => setDraft({ ...draft, full_name: e.target.value })}
-              className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-[#FF9900] focus:ring-[#FF9900] sm:text-sm"
+              className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
             />
             {validationError && <p className="mt-1 text-sm text-red-600">{validationError}</p>}
           </div>
@@ -74,14 +70,14 @@ export default function PersonalSection() {
               type="date"
               value={draft.date_of_birth}
               onChange={(e) => setDraft({ ...draft, date_of_birth: e.target.value })}
-              className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-[#FF9900] focus:ring-[#FF9900] sm:text-sm"
+              className="mt-1 block w-full rounded border-gray-300 shadow-sm focus:border-brand focus:ring-brand sm:text-sm"
             />
           </div>
           <div className="flex gap-3">
             <button
               type="submit"
               disabled={isSaving || draft.full_name.trim().length === 0}
-              className="px-4 py-2 bg-[#FF9900] text-white rounded text-sm font-medium disabled:opacity-50"
+              className="px-4 py-2 bg-brand text-primary rounded text-sm font-medium disabled:opacity-50"
             >
               {isSaving ? 'Guardando…' : 'Guardar'}
             </button>
