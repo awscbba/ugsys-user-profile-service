@@ -18,7 +18,7 @@ from src.infrastructure.messaging.event_publisher import EventBridgePublisher
 from src.infrastructure.persistence.dynamodb_profile_repository import (
     DynamoDBProfileRepository,
 )
-from src.presentation.api.v1 import health, profiles
+from src.presentation.api.v1 import health, plugin_manifest, profiles
 from src.presentation.middleware.correlation_id import CorrelationIdMiddleware
 from src.presentation.middleware.exception_handler import (
     domain_exception_handler,
@@ -119,6 +119,7 @@ def create_app() -> FastAPI:
 
     # Routers
     app.include_router(health.router)
+    app.include_router(plugin_manifest.router)
     app.include_router(profiles.router, prefix="/api/v1")
 
     return app
