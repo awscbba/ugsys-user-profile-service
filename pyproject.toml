@@ -16,7 +16,7 @@ dependencies = [
     "ugsys-event-lib",
     "aioboto3>=13.0",
     "python-multipart>=0.0.22",
-    "python-jose[cryptography]>=3.3",
+    "pyjwt[crypto]>=2.8",
 ]
 
 [project.optional-dependencies]
@@ -31,6 +31,7 @@ dev = [
     "boto3-stubs[dynamodb]>=1.34",
     "bandit[toml]>=1.7",
     "safety>=3.2",
+    "jsonschema>=4.23",
 ]
 
 [tool.uv.sources]
@@ -90,6 +91,7 @@ build-backend = "hatchling.build"
 dev = [
     "aioboto3>=13.0",
     "hypothesis>=6.151.9",
+    "jsonschema>=4.26.0",
 ]
 
 [tool.hatch.build.targets.wheel]
