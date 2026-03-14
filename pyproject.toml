@@ -16,7 +16,7 @@ dependencies = [
     "ugsys-event-lib",
     "aioboto3>=13.0",
     "python-multipart>=0.0.22",
-    "pyjwt[crypto]>=2.8",
+    "pyjwt[crypto]>=2.12.0",
 ]
 
 [project.optional-dependencies]
