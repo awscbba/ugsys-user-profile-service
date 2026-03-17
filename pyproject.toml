@@ -35,7 +35,7 @@ dev = [
 ]
 
 [tool.uv.sources]
-ugsys-auth-client = { git = "https://github.com/awscbba/ugsys-shared-libs", tag = "auth-client/v0.1.0", subdirectory = "auth-client" }
+ugsys-auth-client = { git = "https://github.com/awscbba/ugsys-shared-libs", tag = "auth-client/v0.2.2", subdirectory = "auth-client" }
 ugsys-logging-lib  = { git = "https://github.com/awscbba/ugsys-shared-libs", tag = "logging-lib/v0.1.0",  subdirectory = "logging-lib" }
 ugsys-event-lib    = { git = "https://github.com/awscbba/ugsys-shared-libs", tag = "event-lib/v0.1.0",    subdirectory = "event-lib" }
 
