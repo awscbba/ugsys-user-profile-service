@@ -137,19 +137,21 @@ def test_no_moderator_in_required_roles(manifest: dict) -> None:
 
 
 def test_users_route_exists(manifest: dict) -> None:
-    """Route entry for /users with label 'Users' and requiredRoles containing 'admin'."""
+    """Route entry for /app/user-profile-service/users exists with correct roles."""
     routes = manifest.get("routes", [])
-    users_route = next((r for r in routes if r["path"] == "/users"), None)
-    assert users_route is not None, "No route with path '/users' found"
+    path = "/app/user-profile-service/users"
+    users_route = next((r for r in routes if r["path"] == path), None)
+    assert users_route is not None, f"No route with path '{path}' found"
     assert users_route["label"] == "Users"
     assert "admin" in users_route["requiredRoles"]
 
 
 def test_users_navigation_entry(manifest: dict) -> None:
-    """Navigation entry with label='Users', icon='👤', path='/users', group='Users', order=1."""
+    """Navigation entry for /app/user-profile-service/users has correct fields."""
     nav = manifest.get("navigation", [])
-    entry = next((n for n in nav if n["path"] == "/users"), None)
-    assert entry is not None, "No navigation entry with path '/users' found"
+    path = "/app/user-profile-service/users"
+    entry = next((n for n in nav if n["path"] == path), None)
+    assert entry is not None, f"No navigation entry with path '{path}' found"
     assert entry["label"] == "Users"
     assert entry["icon"] == "👤"
     assert entry["group"] == "Users"

@@ -15,7 +15,7 @@ async def get_plugin_manifest() -> dict[str, object]:
         "healthEndpoint": "/health",
         "routes": [
             {
-                "path": "/users",
+                "path": "/app/user-profile-service/users",
                 "label": "Users",
                 "requiredRoles": ["admin", "super_admin"],
             }
@@ -24,7 +24,7 @@ async def get_plugin_manifest() -> dict[str, object]:
             {
                 "label": "Users",
                 "icon": "👤",
-                "path": "/users",
+                "path": "/app/user-profile-service/users",
                 "group": "Users",
                 "order": 1,
                 "requiredRoles": ["admin", "super_admin"],
